@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raio-X do Comércio Exterior Brasileiro | Freitas</title>
+<link rel="icon" href="logo-freitas.png">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{--primary:#2c2d65;--secondary:#ce0f69;--accent:#ff9e1b;--accent-light:#ffd699;--offwhite:#F7F6FB;--card:#F7F6FB;--border:#E5E2F0;--gray100:#E5E2F0;--gray400:#9595b8;--gray600:#5a5a8a}
+body{font-family:'Source Sans 3','Nunito',-apple-system,sans-serif;color:var(--primary);background:var(--offwhite);min-height:100vh}
+h1,h2,h3,h4{font-family:'Nunito',sans-serif}
+#root{min-height:100vh}
+section[id]{scroll-margin-top:60px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{height:4px}::-webkit-scrollbar-thumb{background:var(--secondary);border-radius:2px}
+#accessGate{position:fixed;inset:0;z-index:99999;background:#FFF;display:flex;align-items:center;justify-content:center;font-family:'Source Sans 3',sans-serif}
+.gate-card{max-width:420px;width:100%;padding:40px;text-align:center}
+.gate-logo{margin-bottom:28px}
+.gate-logo img{height:56px}
+.gate-title{font-size:24px;font-weight:800;color:#2c2d65;margin-bottom:4px;letter-spacing:-.02em;font-family:'Nunito',sans-serif}
+.gate-subtitle{font-size:14px;font-weight:600;color:#ce0f69;margin-bottom:8px}
+.gate-sub{font-size:13px;color:#5a5a8a;margin-bottom:28px;line-height:1.6}
+.gate-field{margin-bottom:14px;text-align:left}
+.gate-field label{display:block;font-size:12px;font-weight:600;color:#5a5a8a;margin-bottom:5px}
+.gate-field input{width:100%;padding:12px 14px;background:#F7F6FB;border:1px solid #E5E2F0;border-radius:8px;color:#2c2d65;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.gate-field input:focus{border-color:#ce0f69;background:#FAFAFF}
+.gate-field input::placeholder{color:#9595b8}
+.gate-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ce0f69 0%,#ff9e1b 100%);color:#FFF;border:none;border-radius:24px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;margin-top:4px}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(206,15,105,.25)}
+.gate-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.gate-error{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;text-align:left}
+.gate-link{margin-top:20px;font-size:12px;color:#9595b8}
+.gate-link a{color:#ce0f69;text-decoration:none;font-weight:600}
+.gate-link a:hover{text-decoration:underline}
+@media(max-width:480px){.gate-card{padding:32px 20px}.gate-title{font-size:20px}.gate-logo img{height:44px}}
+</style>
+</head>
+<body>
+
+<div id="accessGate">
+<div class="gate-card">
+<div class="gate-logo"><img src="https://inovaweb.freitascomex.com.br/img/Freitas-Logo-Branco.png" alt="Freitas"></div>
+<div class="gate-title">Raio-X do Comércio Exterior</div>
+<div class="gate-subtitle">Dashboard Interativo · Freitas Comex</div>
+<div class="gate-sub">Informe o e-mail cadastrado e o código de acesso que você recebeu.</div>
+<div class="gate-error" id="gateError"></div>
+<form id="gateForm">
+<div class="gate-field"><label>E-mail</label><input type="email" id="gateEmail" placeholder="seu@empresa.com.br" required></div>
+<div class="gate-field"><label>Código de acesso</label><input type="text" id="gateCode" placeholder="RAX-XXXXXX" style="text-transform:uppercase;letter-spacing:0.1em;font-weight:600" required></div>
+<button type="submit" class="gate-btn" id="gateBtn">Entrar</button>
+</form>
+<div class="gate-link">Não tem código? <a href="index.html">Solicitar acesso</a></div>
+</div>
+</div>
+
+<div id="root"></div>
+
+<script>
+(function(){
+if(sessionStorage.getItem('dash_access_ok')){document.getElementById('accessGate').style.display='none';return}
+function getLeadsDB(){try{return JSON.parse(localStorage.getItem('leads_db')||'[]')}catch(e){return[]}}
+document.getElementById('gateForm').addEventListener('submit',function(e){
+e.preventDefault();
+var btn=document.getElementById('gateBtn'),err=document.getElementById('gateError');
+err.style.display='none';
+var email=document.getElementById('gateEmail').value.trim().toLowerCase();
+var code=document.getElementById('gateCode').value.trim().toUpperCase();
+if(!email||!code){err.textContent='Preencha e-mail e código.';err.style.display='block';return}
+btn.disabled=true;btn.textContent='Verificando...';
+setTimeout(function(){
+var db=getLeadsDB(),found=false;
+for(var i=0;i<db.length;i++){if(db[i].email.toLowerCase()===email&&db[i].code===code){found=true;break}}
+if(found){sessionStorage.setItem('dash_access_ok','1');document.getElementById('accessGate').style.display='none'}
+else{err.textContent='E-mail ou código inválido. Verifique e tente novamente.';err.style.display='block';btn.disabled=false;btn.textContent='Entrar'}
+},800);
+});
+})();
+</script>
+
+<script type="text/babel">
+const{useState,useEffect,useRef}=React;
+const{BarChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer,Cell,Legend,AreaChart,Area}=Recharts;
+
+const C={navy:"#2c2d65",magenta:"#ce0f69",orange:"#ff9e1b",white:"#FFF",offWhite:"#F7F6FB",gray100:"#E5E2F0",gray400:"#9595b8",gray600:"#5a5a8a",red:"#E53E3E",yellow:"#ECC94B",green:"#38A169"};
+const slugify=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ /g,'-');
+
+const balanca=[{ano:"2020",exp:209.2,imp:177.1},{ano:"2021",exp:280.4,imp:219.4},{ano:"2022",exp:334.0,imp:272.8},{ano:"2023",exp:339.7,imp:238.8},{ano:"2024",exp:337.0,imp:262.5},{ano:"2025",exp:348.7,imp:280.4}];
+const paises=[{pais:"China",valor:63.6},{pais:"EUA",valor:40.7},{pais:"Argentina",valor:13.3},{pais:"Alemanha",valor:8.5},{pais:"Coreia do Sul",valor:4.7},{pais:"Índia",valor:4.3},{pais:"México",valor:4.2},{pais:"Japão",valor:4.1}];
+const estados=[{uf:"SP",valor:65.3},{uf:"SC",valor:25.4},{uf:"RJ",valor:24.9},{uf:"PR",valor:15.6},{uf:"MG",valor:13.7},{uf:"AM",valor:12.5},{uf:"RS",valor:10.2},{uf:"ES",valor:10.1},{uf:"BA",valor:7.3},{uf:"PE",valor:5.5}];
+const setores=[{setor:"Químicos",score:92,valor:63.9},{setor:"Máquinas",score:91,valor:29.5},{setor:"Farma",score:88,valor:12.35},{setor:"Automotivo",score:87,valor:20.9},{setor:"Eletroeletrônicos",score:85,valor:20.0},{setor:"Tecnologia",score:82,valor:8.0},{setor:"Energia",score:80,valor:10.0}];
+const canais=[{canal:"Verde",tempo:"17h",cor:C.green,pct:"~77%"},{canal:"Amarelo",tempo:"9 dias",cor:C.yellow,pct:"~15%"},{canal:"Vermelho",tempo:"15 dias",cor:C.red,pct:"~7%"},{canal:"Cinza",tempo:"+180 dias",cor:"#718096",pct:"<1%"}];
+const categoria=[{name:"Bens capital",crescimento:23.8},{name:"Intermediários",crescimento:14.5},{name:"Duráveis",crescimento:53.4},{name:"Semiduráveis",crescimento:27.7},{name:"Não duráveis",crescimento:10.0}];
+const jornada=[{num:1,nome:"Análise pré-compra",risco:"NCM errada, ex-tarifário perdido",papel:"Consultoria técnica"},{num:2,nome:"Simulação de custo",risco:"Landed cost incorreto",papel:"Planejamento financeiro"},{num:3,nome:"Licenciamento",risco:"LI atrasada",papel:"Gestão de licenças"},{num:4,nome:"Negociação do frete",risco:"Custo imprevisível",papel:"Gestão logística"},{num:5,nome:"Documentação",risco:"Documentos divergentes",papel:"Auditoria documental"},{num:6,nome:"Acompanhamento",risco:"Manifesto incorreto",papel:"Follow-up operacional"},{num:7,nome:"Registro DUIMP",risco:"Erro no preenchimento",papel:"Despacho aduaneiro"},{num:8,nome:"Parametrização",risco:"Canal vermelho/cinza",papel:"Gestão de risco"},{num:9,nome:"Tributos",risco:"Cálculo errado",papel:"Suporte tributário"},{num:10,nome:"Auditoria",risco:"Autuação futura",papel:"Governança pós-operação"}];
+
+function AnimatedCounter({end,duration=2000,prefix="",suffix="",decimals=0}){
+const[count,setCount]=useState(0);const[started,setStarted]=useState(false);const ref=useRef(null);
+useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setStarted(true)},{threshold:.3});if(ref.current)o.observe(ref.current);return()=>o.disconnect()},[]);
+useEffect(()=>{if(!started)return;let s=0;const st=end/(duration/16);const t=setInterval(()=>{s+=st;if(s>=end){setCount(end);clearInterval(t)}else setCount(s)},16);return()=>clearInterval(t)},[started,end,duration]);
+return<span ref={ref}>{prefix}{count.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g,".")}{suffix}</span>;
+}
+
+function LiveCounter(){
+const[v,setV]=useState(0);
+useEffect(()=>{const t=setInterval(()=>setV(x=>x+8880),1000);return()=>clearInterval(t)},[]);
+return<div style={{background:`linear-gradient(135deg,${C.navy} 0%,#3d3e8a 100%)`,borderRadius:16,padding:"32px 24px",textAlign:"center",border:`1px solid ${C.orange}33`}}>
+<div style={{fontSize:11,textTransform:"uppercase",letterSpacing:3,color:C.orange,marginBottom:8,fontWeight:700}}>Desde que você abriu esta página, o Brasil importou</div>
+<div style={{fontSize:42,fontWeight:800,color:C.white,fontFamily:"'JetBrains Mono',monospace",letterSpacing:-1}}>US$ {v.toLocaleString("pt-BR")}</div>
+<div style={{fontSize:12,color:"#c5c5dd",marginTop:8}}>US$ 8.880 por segundo · Base: US$ 280,4 bi em 2025 (MDIC/Secex)</div>
+</div>;
+}
+
+function Section({id,children,dark}){return<section id={id} style={{padding:"72px 0",background:dark?C.navy:C.offWhite}}><div style={{maxWidth:1120,margin:"0 auto",padding:"0 24px"}}>{children}</div></section>}
+function SectionTitle({children,sub,light}){return<div style={{marginBottom:40}}>
+<h2 style={{fontFamily:"'Nunito',sans-serif",fontSize:28,fontWeight:800,color:light?C.white:C.navy,margin:0,lineHeight:1.2,letterSpacing:"-0.02em"}}>{children}</h2>
+{sub&&<p style={{fontSize:15,color:light?"#c5c5dd":C.gray600,marginTop:8,lineHeight:1.6,maxWidth:700}}>{sub}</p>}
+</div>}
+function BigCard({label,value,sub,accent}){return<div style={{background:C.white,borderRadius:12,padding:"28px 24px",boxShadow:"0 2px 12px rgba(44,45,101,0.06)",borderLeft:`4px solid ${accent||C.magenta}`,flex:"1 1 200px",minWidth:200}}>
+<div style={{fontSize:11,textTransform:"uppercase",letterSpacing:2,color:C.gray400,marginBottom:8,fontWeight:600}}>{label}</div>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:30,fontWeight:800,color:C.navy,lineHeight:1}}>{value}</div>
+{sub&&<div style={{fontSize:12,color:C.gray600,marginTop:8}}>{sub}</div>}
+</div>}
+function Fonte({children}){return<div style={{fontSize:11,color:C.gray400,marginTop:12,fontStyle:"italic"}}>{children}</div>}
+
+function CompareYourself(){
+const[setor,setSetor]=useState('');
+const[volume,setVolume]=useState('');
+const[ticket,setTicket]=useState('');
+const[show,setShow]=useState(false);
+const sd={
+'quimicos':{nome:'Químicos',volume:63.9,score:92,riscos:['Alíquota II elevada em 2026 para diversos NCMs do segmento','Complexidade regulatória cruzada (ANVISA, IBAMA, MAPA)','Volume alto exige governança fiscal estruturada e revisão periódica de NCMs']},
+'maquinas':{nome:'Máquinas e Bens de Capital',volume:29.5,score:91,riscos:['Ex-tarifário pouco utilizado representa perda de até 70% do II em equipamentos elegíveis','GECEX 852/2026 elevou alíquotas de 1.000+ NCMs, atingindo BK e BIT','Lead time impacta diretamente o ROI do investimento e o cronograma de obra']},
+'farma':{nome:'Farmacêutico',volume:12.35,score:88,riscos:['ANVISA + RDCs específicas elevam o custo de compliance da operação','Ressuprimento crítico: atraso de desembaraço pode gerar falta de produto','Crescimento de +55% em 10 anos exige governança comex escalável']},
+'auto':{nome:'Automotivo / Autopeças',volume:20.9,score:87,riscos:['Cadeia de autopeças complexa, com múltiplos fornecedores e NCMs distintas','Alta dependência da rota Brasil-China, vulnerável a câmbio e tensões geopolíticas','Risco cambial direto sobre a margem do produto final']},
+'eletro':{nome:'Eletroeletrônicos',volume:20.0,score:85,riscos:['Ciclo de vida curto pressiona o giro de estoque e o tempo de desembaraço','Pressão competitiva de preço chinês reduz margem para erros tributários','Exigências de homologação (ANATEL, INMETRO) somam etapas à jornada']},
+'tech':{nome:'Tecnologia',volume:8.0,score:82,riscos:['Integração SaaS + hardware exige NCM correta (risco de reclassificação)','Lei do Bem e regimes especiais (Repetro, etc) merecem análise dedicada','Crescimento alto exige operação comex estruturada antes da escala virar problema']},
+'outro':{nome:'Outros setores',volume:0,score:75,riscos:['Diagnóstico personalizado é fortemente recomendado para o seu segmento','Cada vertical tem regulação e tributação específicas','Falar com a Freitas é a forma mais rápida de mapear seus riscos']}
+};
+const vd={'p':{nome:'Até 20 operações/ano',mult:10},'m':{nome:'21 a 100 operações/ano',mult:60},'g':{nome:'101 a 500 operações/ano',mult:300},'e':{nome:'Mais de 500 operações/ano',mult:800}};
+const td={'b':{nome:'Até US$ 50k',val:30000},'m':{nome:'US$ 50k a 200k',val:125000},'a':{nome:'US$ 200k a 1M',val:600000},'p':{nome:'Mais de US$ 1M',val:2000000}};
+const reset=()=>{setSetor('');setVolume('');setTicket('');setShow(false)};
+if(show&&setor&&volume&&ticket){
+const s=sd[setor],v=vd[volume],t=td[ticket];
+const seu=(v.mult*t.val)/1000000;
+const pct=s.volume>0?(seu/1000)/s.volume*100:0;
+return<div>
+<div style={{textAlign:'center',marginBottom:24}}>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:22,fontWeight:800,color:C.white}}>Seu perfil em contexto</div>
+<div style={{fontSize:12,color:'#c5c5dd',marginTop:4}}>{s.nome} · {v.nome} · {t.nome}</div>
+</div>
+<div style={{background:`${C.orange}11`,borderRadius:12,padding:20,marginBottom:16,border:`1px solid ${C.orange}33`}}>
+<div style={{fontSize:11,textTransform:'uppercase',letterSpacing:2,color:C.orange,marginBottom:4,fontWeight:700}}>Sua escala estimada</div>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:32,fontWeight:800,color:C.white}}>~US$ {seu.toFixed(1)} mi/ano</div>
+{s.volume>0&&<div style={{fontSize:13,color:'#c5c5dd',marginTop:4}}>~{pct.toFixed(2)}% do volume nacional do setor (US$ {s.volume} bi)</div>}
+</div>
+<div style={{background:'rgba(255,255,255,0.04)',borderRadius:12,padding:20,marginBottom:20}}>
+<div style={{fontSize:12,color:'#c5c5dd',marginBottom:10,fontWeight:600}}>Score Comex do seu setor</div>
+<div style={{display:'flex',alignItems:'center',gap:12}}>
+<div style={{height:10,flex:1,background:'rgba(255,255,255,0.08)',borderRadius:5,overflow:'hidden'}}>
+<div style={{height:'100%',width:`${s.score}%`,background:s.score>=90?C.magenta:s.score>=85?C.orange:C.navy,borderRadius:5}}/>
+</div>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:24,fontWeight:800,color:C.white}}>{s.score}</div>
+</div>
+</div>
+<div style={{marginBottom:24}}>
+<div style={{fontSize:11,textTransform:'uppercase',letterSpacing:2,color:C.gray400,marginBottom:12,fontWeight:700}}>Principais riscos para o seu perfil</div>
+{s.riscos.map((r,i)=><div key={i} style={{display:'flex',gap:10,marginBottom:10,alignItems:'start'}}>
+<div style={{width:6,height:6,borderRadius:'50%',background:C.magenta,flexShrink:0,marginTop:7}}/>
+<span style={{fontSize:13,color:'#c5c5dd',lineHeight:1.5}}>{r}</span>
+</div>)}
+</div>
+<div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+<button onClick={reset} style={{padding:'12px 20px',borderRadius:8,border:`1px solid ${C.orange}`,background:'transparent',color:C.orange,cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'inherit'}}>Refazer</button>
+<a href="https://wa.me/554730458200" target="_blank" style={{padding:'12px 24px',borderRadius:8,background:`linear-gradient(135deg,${C.magenta},${C.orange})`,color:C.white,fontSize:13,fontWeight:800,textDecoration:'none',fontFamily:"'Nunito',sans-serif"}}>Quero diagnóstico Freitas</a>
+</div>
+</div>;
+}
+const inp={width:'100%',padding:'12px 14px',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,color:C.white,fontSize:14,outline:'none',fontFamily:'inherit'};
+const ready=setor&&volume&&ticket;
+return<div>
+<div style={{marginBottom:18}}>
+<label style={{display:'block',fontSize:12,color:'#c5c5dd',marginBottom:6,fontWeight:600}}>Setor principal da sua operação</label>
+<select value={setor} onChange={e=>setSetor(e.target.value)} style={inp}>
+<option value="" style={{background:C.navy}}>Selecione...</option>
+{Object.entries(sd).map(([k,v])=><option key={k} value={k} style={{background:C.navy}}>{v.nome}</option>)}
+</select>
+</div>
+<div style={{marginBottom:18}}>
+<label style={{display:'block',fontSize:12,color:'#c5c5dd',marginBottom:6,fontWeight:600}}>Volume anual de importações</label>
+<select value={volume} onChange={e=>setVolume(e.target.value)} style={inp}>
+<option value="" style={{background:C.navy}}>Selecione...</option>
+{Object.entries(vd).map(([k,v])=><option key={k} value={k} style={{background:C.navy}}>{v.nome}</option>)}
+</select>
+</div>
+<div style={{marginBottom:24}}>
+<label style={{display:'block',fontSize:12,color:'#c5c5dd',marginBottom:6,fontWeight:600}}>Ticket médio por operação</label>
+<select value={ticket} onChange={e=>setTicket(e.target.value)} style={inp}>
+<option value="" style={{background:C.navy}}>Selecione...</option>
+{Object.entries(td).map(([k,v])=><option key={k} value={k} style={{background:C.navy}}>{v.nome}</option>)}
+</select>
+</div>
+<button onClick={()=>ready&&setShow(true)} disabled={!ready} style={{width:'100%',padding:14,background:ready?`linear-gradient(135deg,${C.magenta},${C.orange})`:'rgba(255,255,255,0.1)',color:C.white,border:'none',borderRadius:24,fontSize:15,fontWeight:800,cursor:ready?'pointer':'not-allowed',fontFamily:"'Nunito',sans-serif",transition:'all 0.2s'}}>Comparar minha operação</button>
+</div>;
+}
+
+function LandedSim(){
+const[fob,setFob]=useState(100000);const[frete,setFrete]=useState(8000);const[ii,setIi]=useState(12);const[icms,setIcms]=useState(12);
+const cmb=5.80;
+const cif=(fob+frete+fob*0.005)*cmb;
+const iiv=cif*ii/100,pc=cif*0.0925,af=frete*0.08*cmb;
+const bi=(cif+iiv+pc)/(1-icms/100),iv=bi*icms/100;
+const dp=15000,total=cif+iiv+pc+af+iv+dp;
+const fb=fob*cmb,sb=((total-fb)/fb*100).toFixed(1);
+const parts=[{l:"Valor Aduaneiro (CIF)",v:cif,c:C.gray400},{l:`II (${ii}%)`,v:iiv,c:C.red},{l:"PIS/COFINS (9,25%)",v:pc,c:C.magenta},{l:`ICMS (${icms}%)`,v:iv,c:C.yellow},{l:"AFRMM (8%)",v:af,c:C.orange},{l:"Despesas aduaneiras",v:dp,c:C.gray600}];
+const fmt=v=>"R$ "+Math.round(v).toLocaleString("pt-BR");
+const lbl={fontSize:12,color:"#c5c5dd",display:"block",marginBottom:6,fontWeight:600};
+const val={fontSize:14,color:C.white,fontWeight:700,fontFamily:"'Nunito',sans-serif"};
+return<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:32,alignItems:"start"}}>
+<div>
+<div style={{marginBottom:20}}><label style={lbl}>Valor FOB (US$)</label><input type="range" min={10000} max={1000000} step={5000} value={fob} onChange={e=>setFob(+e.target.value)} style={{width:"100%",accentColor:C.orange}}/><div style={val}>US$ {fob.toLocaleString("pt-BR")}</div></div>
+<div style={{marginBottom:20}}><label style={lbl}>Frete internacional (US$)</label><input type="range" min={1000} max={50000} step={500} value={frete} onChange={e=>setFrete(+e.target.value)} style={{width:"100%",accentColor:C.orange}}/><div style={val}>US$ {frete.toLocaleString("pt-BR")}</div></div>
+<div style={{marginBottom:20}}><label style={lbl}>Alíquota II (%)</label><input type="range" min={0} max={35} step={1} value={ii} onChange={e=>setIi(+e.target.value)} style={{width:"100%",accentColor:C.orange}}/><div style={val}>{ii}%</div></div>
+<div style={{marginBottom:20}}><label style={lbl}>ICMS UF (%)</label><input type="range" min={4} max={18} step={1} value={icms} onChange={e=>setIcms(+e.target.value)} style={{width:"100%",accentColor:C.orange}}/><div style={val}>{icms}%</div></div>
+<div style={{fontSize:11,color:"#c5c5dd"}}>Câmbio simulado: R$ {cmb.toFixed(2)} · Seguro: 0,5% FOB</div>
+</div>
+<div>
+<div style={{background:"rgba(255,158,27,0.1)",borderRadius:12,padding:24,marginBottom:16,border:`1px solid ${C.orange}33`}}>
+<div style={{fontSize:11,textTransform:"uppercase",letterSpacing:2,color:C.orange,marginBottom:4,fontWeight:700}}>Landed Cost Total</div>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:36,fontWeight:800,color:C.white}}>{fmt(total)}</div>
+<div style={{fontSize:14,color:C.magenta,fontWeight:700,marginTop:4}}>+{sb}% sobre o FOB</div>
+</div>
+{parts.map((p,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:`1px solid #5a5a8a22`}}>
+<div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:"50%",background:p.c}}/><span style={{fontSize:13,color:"#c5c5dd"}}>{p.l}</span></div>
+<span style={{fontSize:13,color:C.white,fontWeight:700}}>{fmt(p.v)}</span>
+</div>)}
+</div>
+</div>;
+}
+
+function Dashboard(){
+const navs=["Visão Geral","Por Estado","Por Setor","Custos","Jornada","Compare-se","Metodologia"];
+const[tab,setTab]=useState(navs[0]);
+const[jor,setJor]=useState(null);
+return<div>
+<div style={{background:`linear-gradient(160deg,${C.navy} 0%,#1d1d4a 60%,${C.magenta} 130%)`,padding:"48px 24px 56px",textAlign:"center",position:"relative",overflow:"hidden"}}>
+<div style={{position:"absolute",inset:0,backgroundImage:`radial-gradient(circle at 20% 80%,rgba(255,158,27,0.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(206,15,105,0.1) 0%,transparent 50%)`}}/>
+<div style={{position:"relative",maxWidth:900,margin:"0 auto"}}>
+<div style={{display:"inline-block",padding:"4px 16px",borderRadius:20,background:"rgba(255,158,27,0.18)",color:C.orange,fontSize:12,fontWeight:700,letterSpacing:1,marginBottom:16,textTransform:"uppercase",border:`1px solid ${C.orange}33`}}>Inteligência de Mercado · 2026</div>
+<h1 style={{fontFamily:"'Nunito',sans-serif",fontSize:40,fontWeight:800,color:C.white,margin:"0 0 12px",lineHeight:1.15,letterSpacing:-0.5}}>Raio-X do Comércio<br/>Exterior Brasileiro</h1>
+<p style={{fontSize:16,color:"#c5c5dd",maxWidth:600,margin:"0 auto 32px",lineHeight:1.6}}>Os números que diretores de comex usam pra defender orçamento. Importações batendo recorde, GECEX 852 elevando 1.000+ NCMs, demurrage somando US$ 2,3 bi/ano. Onde sua operação se encaixa?</p>
+<LiveCounter/>
+<div style={{marginTop:24,display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap"}}>
+{["MDIC/Secex","ABIMAQ","ABIQUIM","FGV/IBRE","Receita Federal"].map(s=><span key={s} style={{padding:"4px 10px",borderRadius:4,background:"rgba(255,255,255,0.06)",fontSize:10,color:"#c5c5dd",letterSpacing:0.5}}>{s}</span>)}
+</div>
+</div>
+</div>
+
+<div style={{background:C.white,borderBottom:`1px solid ${C.gray100}`,position:"sticky",top:0,zIndex:50}}>
+<div style={{maxWidth:1120,margin:"0 auto",padding:"0 24px",display:"flex",overflowX:"auto"}}>
+{navs.map(t=><a key={t} href={`#${slugify(t)}`} onClick={()=>setTab(t)} style={{padding:"14px 18px",fontSize:13,fontWeight:tab===t?700:500,color:tab===t?C.magenta:C.gray600,borderBottom:tab===t?`2px solid ${C.magenta}`:"2px solid transparent",textDecoration:"none",whiteSpace:"nowrap",transition:"all 0.2s"}}>{t}</a>)}
+</div>
+</div>
+
+<Section id={slugify("Visão Geral")}>
+<SectionTitle sub="O Brasil importou US$ 280,4 bilhões em 2025, o maior valor da série histórica iniciada em 1989. Pra empresas que importam máquinas ou insumos, o mercado está mais ativo, mais competitivo e mais exposto a câmbio e regulação.">Panorama do Comércio Exterior</SectionTitle>
+<div style={{display:"flex",gap:16,flexWrap:"wrap",marginBottom:40}}>
+<BigCard label="Importações 2025" value={<AnimatedCounter end={280.4} decimals={1} prefix="US$ " suffix=" bi"/>} sub="Recorde · +6,7% vs 2024" accent={C.magenta}/>
+<BigCard label="Exportações 2025" value={<AnimatedCounter end={348.7} decimals={1} prefix="US$ " suffix=" bi"/>} sub="Recorde · +3,5% vs 2024" accent={C.navy}/>
+<BigCard label="Corrente de Comércio" value={<AnimatedCounter end={629.1} decimals={1} prefix="US$ " suffix=" bi"/>} sub="Maior marca desde 1989" accent={C.orange}/>
+<BigCard label="Empresas Importadoras" value={<AnimatedCounter end={51200}/>} sub="Estimativa MDIC (2023)" accent={C.gray400}/>
+</div>
+
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)",marginBottom:32}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 4px"}}>Evolução 2020 - 2025 (US$ bilhões)</h3>
+<div style={{fontSize:12,color:C.gray400,marginBottom:16}}>Importações cresceram 58% em 5 anos · Fonte: MDIC/Secex, FGV/IBRE</div>
+<ResponsiveContainer width="100%" height={300}>
+<AreaChart data={balanca}>
+<defs>
+<linearGradient id="gImp" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.magenta} stopOpacity={0.3}/><stop offset="95%" stopColor={C.magenta} stopOpacity={0}/></linearGradient>
+<linearGradient id="gExp" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.navy} stopOpacity={0.25}/><stop offset="95%" stopColor={C.navy} stopOpacity={0}/></linearGradient>
+</defs>
+<CartesianGrid strokeDasharray="3 3" stroke={C.gray100}/>
+<XAxis dataKey="ano" tick={{fontSize:12,fill:C.gray600}}/>
+<YAxis tick={{fontSize:12,fill:C.gray600}}/>
+<Tooltip contentStyle={{borderRadius:8,border:"none",boxShadow:"0 4px 12px rgba(0,0,0,0.1)"}}/>
+<Area type="monotone" dataKey="exp" name="Exportações" stroke={C.navy} fill="url(#gExp)" strokeWidth={2}/>
+<Area type="monotone" dataKey="imp" name="Importações" stroke={C.magenta} fill="url(#gImp)" strokeWidth={2.5}/>
+<Legend/>
+</AreaChart>
+</ResponsiveContainer>
+</div>
+
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)"}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 4px"}}>Principais Origens (2024)</h3>
+<div style={{fontSize:12,color:C.gray400,marginBottom:16}}>China + EUA = 39% das importações</div>
+<ResponsiveContainer width="100%" height={260}>
+<BarChart data={paises} layout="vertical" margin={{left:60}}>
+<CartesianGrid strokeDasharray="3 3" stroke={C.gray100}/>
+<XAxis type="number" tick={{fontSize:11,fill:C.gray600}}/>
+<YAxis type="category" dataKey="pais" tick={{fontSize:12,fill:C.gray600}} width={65}/>
+<Tooltip contentStyle={{borderRadius:8,border:"none"}}/>
+<Bar dataKey="valor" name="US$ bi" fill={C.magenta} radius={[0,4,4,0]}/>
+</BarChart>
+</ResponsiveContainer>
+<Fonte>Fonte: MDIC/Comex Stat, FGV/IBRE (2024)</Fonte>
+</div>
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)"}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 4px"}}>Crescimento por Categoria de Uso</h3>
+<div style={{fontSize:12,color:C.gray400,marginBottom:16}}>Jan-Nov 2024 vs 2023 (volume)</div>
+<ResponsiveContainer width="100%" height={260}>
+<BarChart data={categoria}>
+<CartesianGrid strokeDasharray="3 3" stroke={C.gray100}/>
+<XAxis dataKey="name" tick={{fontSize:10,fill:C.gray600}}/>
+<YAxis tick={{fontSize:11,fill:C.gray600}} unit="%"/>
+<Tooltip contentStyle={{borderRadius:8,border:"none"}}/>
+<Bar dataKey="crescimento" name="Crescimento %" fill={C.orange} radius={[4,4,0,0]}>
+{categoria.map((_,i)=><Cell key={i} fill={i===2?C.magenta:C.orange}/>)}
+</Bar>
+</BarChart>
+</ResponsiveContainer>
+<Fonte>Fonte: FGV/IBRE, MDIC (Jan-Nov 2024)</Fonte>
+</div>
+</div>
+<div style={{background:`linear-gradient(135deg,${C.navy}08,${C.magenta}08)`,borderRadius:12,padding:20,marginTop:24,borderLeft:`3px solid ${C.magenta}`}}>
+<div style={{fontSize:13,color:C.gray600,lineHeight:1.7}}><strong style={{color:C.navy}}>Leitura executiva:</strong> O salto de +53,4% em bens de consumo duráveis reflete a entrada massiva de veículos elétricos e eletrônicos chineses. O crescimento de +23,8% em bens de capital sinaliza ciclo de investimentos industriais. Pra empresas que importam máquinas ou insumos, isso significa mais concorrência por slot logístico e mais pressão regulatória.</div>
+</div>
+</Section>
+
+<Section id={slugify("Por Estado")} dark>
+<SectionTitle light sub="SP + SC + RJ concentram 54,6% das importações. A descentralização está em curso: SC, PR e ES crescem acima da média.">Análise por Estado</SectionTitle>
+<div style={{background:"rgba(255,255,255,0.04)",borderRadius:12,padding:24,marginBottom:24}}>
+<ResponsiveContainer width="100%" height={340}>
+<BarChart data={estados} layout="vertical" margin={{left:30}}>
+<CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)"/>
+<XAxis type="number" tick={{fontSize:11,fill:"#c5c5dd"}}/>
+<YAxis type="category" dataKey="uf" tick={{fontSize:13,fill:"#c5c5dd",fontWeight:700}} width={35}/>
+<Tooltip contentStyle={{borderRadius:8,background:C.navy,border:`1px solid ${C.orange}33`,color:C.white}}/>
+<Bar dataKey="valor" name="US$ bi FOB" fill={C.orange} radius={[0,6,6,0]}>
+{estados.map((_,i)=><Cell key={i} fill={i<3?C.orange:`${C.orange}88`}/>)}
+</Bar>
+</BarChart>
+</ResponsiveContainer>
+<Fonte>Fonte: Comex Stat / Business2gether (2025)</Fonte>
+</div>
+<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
+{[{uf:"SP",desc:"Principal praça de comex. Automotivo, máquinas, químico, farmacêutico.",score:95},{uf:"SC",desc:"Crescimento acima da média nacional. Alta diversidade industrial e portos eficientes.",score:88},{uf:"PR",desc:"Hub agroindustrial importador. Porto de Paranaguá relevante.",score:80}].map(s=>
+<div key={s.uf} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:16,border:"1px solid rgba(255,255,255,0.06)"}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+<span style={{fontFamily:"'Nunito',sans-serif",fontSize:22,fontWeight:800,color:C.white}}>{s.uf}</span>
+<span style={{fontSize:11,background:C.magenta,color:C.white,padding:"2px 8px",borderRadius:10,fontWeight:700}}>Score {s.score}</span>
+</div>
+<div style={{fontSize:12,color:"#c5c5dd",lineHeight:1.5}}>{s.desc}</div>
+</div>)}
+</div>
+</Section>
+
+<Section id={slugify("Por Setor")}>
+<SectionTitle sub="Score Comex (0-100) pondera volume, crescimento, complexidade regulatória, exposição tributária, potencial de ex-tarifário e risco documental.">Análise por Setor</SectionTitle>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)"}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 16px"}}>Score Comex por Setor</h3>
+{setores.map((s,i)=><div key={i} style={{marginBottom:14}}>
+<div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:4}}>
+<span style={{color:C.gray600,fontWeight:600}}>{s.setor}</span>
+<span style={{fontWeight:800,color:C.navy,fontFamily:"'Nunito',sans-serif"}}>{s.score}</span>
+</div>
+<div style={{height:8,background:C.gray100,borderRadius:4,overflow:"hidden"}}>
+<div style={{width:`${s.score}%`,height:"100%",background:s.score>=90?C.magenta:s.score>=85?C.orange:C.navy,borderRadius:4,transition:"width 1s ease"}}/>
+</div>
+</div>)}
+<Fonte>Metodologia: Seção I do documento de inteligência</Fonte>
+</div>
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)"}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 16px"}}>Volume Importado (US$ bi, 2024)</h3>
+<ResponsiveContainer width="100%" height={300}>
+<BarChart data={setores} layout="vertical" margin={{left:80}}>
+<CartesianGrid strokeDasharray="3 3" stroke={C.gray100}/>
+<XAxis type="number" tick={{fontSize:11,fill:C.gray600}}/>
+<YAxis type="category" dataKey="setor" tick={{fontSize:12,fill:C.gray600}} width={80}/>
+<Tooltip contentStyle={{borderRadius:8,border:"none"}}/>
+<Bar dataKey="valor" name="US$ bi" fill={C.navy} radius={[0,4,4,0]}>
+{setores.map((s,i)=><Cell key={i} fill={s.score>=90?C.magenta:s.score>=85?C.navy:`${C.navy}88`}/>)}
+</Bar>
+</BarChart>
+</ResponsiveContainer>
+<Fonte>Fontes: ABIQUIM, ABIMAQ, Sindipeças, Logcomex, Comex Stat (2024)</Fonte>
+</div>
+</div>
+<div style={{background:`linear-gradient(135deg,${C.orange}10,${C.magenta}10)`,borderRadius:12,padding:20,marginTop:24,borderLeft:`3px solid ${C.orange}`}}>
+<div style={{fontSize:13,color:C.gray600,lineHeight:1.7}}><strong style={{color:C.navy}}>Alerta GECEX 852/2026:</strong> A elevação do imposto de importação sobre mais de 1.000 NCMs em 2026, incluindo BK e BIT com alíquotas de até 20%, exige revisão imediata de classificações fiscais, avaliação de ex-tarifário e análise de impacto nas operações planejadas. Quem não revisar paga a mais.</div>
+</div>
+</Section>
+
+<Section id={slugify("Custos")} dark>
+<SectionTitle light sub="O custo da importação pode representar de 40% a 100% do valor FOB. Onde ele se forma e como reduzi-lo.">Custos e Pressões do Comex</SectionTitle>
+<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:40}}>
+{[{n:"US$ 2,3 bi",l:"gastos com demurrage em 2024",f:"Bain & Company",i:"⚓"},{n:"23,15%",l:"operações em canal de conferência (não-OEA)",f:"Receita Federal",i:"🔍"},{n:"+1.000 NCMs",l:"com imposto de importação elevado em 2026",f:"GECEX 852/2026",i:"📈"}].map((c,i)=>
+<div key={i} style={{background:"rgba(255,255,255,0.04)",borderRadius:12,padding:24,border:"1px solid rgba(255,255,255,0.06)",textAlign:"center"}}>
+<div style={{fontSize:32,marginBottom:8}}>{c.i}</div>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:28,fontWeight:800,color:C.orange}}>{c.n}</div>
+<div style={{fontSize:13,color:"#c5c5dd",marginTop:4,lineHeight:1.4}}>{c.l}</div>
+<div style={{fontSize:10,color:"#9595b8",marginTop:8}}>{c.f}</div>
+</div>)}
+</div>
+
+<div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:32,border:"1px solid rgba(255,255,255,0.06)",marginBottom:32}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:20,fontWeight:800,color:C.white,margin:"0 0 4px"}}>Simulador de Landed Cost</h3>
+<p style={{fontSize:13,color:"#c5c5dd",marginBottom:24}}>Ajuste os valores e veja o custo real da sua importação. Exemplo: máquina industrial FOB US$ 100k.</p>
+<LandedSim/>
+<div style={{fontSize:11,color:"#9595b8",marginTop:16,fontStyle:"italic"}}>Simulação didática. Valores reais variam por NCM, UF, Incoterm e regime.</div>
+</div>
+
+<div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:32,border:"1px solid rgba(255,255,255,0.06)"}}>
+<h3 style={{fontFamily:"'Nunito',sans-serif",fontSize:20,fontWeight:800,color:C.white,margin:"0 0 4px"}}>Canais de Parametrização: Quanto Custa Cada Dia?</h3>
+<p style={{fontSize:13,color:"#c5c5dd",marginBottom:24}}>O tempo de desembaraço varia dramaticamente conforme o canal. Empresa OEA tem 72x menos chance de conferência.</p>
+<div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+{canais.map((c,i)=><div key={i} style={{textAlign:"center",padding:20,borderRadius:12,background:`${c.cor}11`,border:`1px solid ${c.cor}33`}}>
+<div style={{width:16,height:16,borderRadius:"50%",background:c.cor,margin:"0 auto 12px"}}/>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:700,color:C.white}}>{c.canal}</div>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:24,fontWeight:800,color:c.cor,marginTop:4}}>{c.tempo}</div>
+<div style={{fontSize:11,color:"#c5c5dd",marginTop:4}}>{c.pct} das DIs</div>
+</div>)}
+</div>
+<Fonte>Fonte: Receita Federal, Porto de Santos, referência setorial</Fonte>
+</div>
+</Section>
+
+<Section id={slugify("Jornada")}>
+<SectionTitle sub="10 etapas representativas, 10 pontos críticos onde a maioria das empresas perde dinheiro. Clique em uma etapa para ver detalhes do risco e como a Freitas atua.">Jornada da Importação</SectionTitle>
+<div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:32}}>
+{jornada.map((e,i)=><div key={i} onClick={()=>setJor(jor===i?null:i)} style={{background:jor===i?C.magenta:C.white,borderRadius:12,padding:16,boxShadow:"0 2px 12px rgba(44,45,101,0.06)",cursor:"pointer",transition:"all 0.2s",border:`1px solid ${jor===i?C.magenta:C.gray100}`}}>
+<div style={{fontFamily:"'Nunito',sans-serif",fontSize:24,fontWeight:800,color:jor===i?C.white:C.magenta,marginBottom:4}}>{e.num}</div>
+<div style={{fontSize:12,fontWeight:700,color:jor===i?C.white:C.navy,lineHeight:1.3}}>{e.nome}</div>
+</div>)}
+</div>
+{jor!==null&&<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)",borderLeft:`4px solid ${C.orange}`,marginBottom:24,animation:"fadeIn 0.3s ease"}}>
+<h4 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 12px"}}>Etapa {jornada[jor].num}: {jornada[jor].nome}</h4>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+<div><div style={{fontSize:11,textTransform:"uppercase",letterSpacing:1,color:C.gray400,marginBottom:4,fontWeight:700}}>Risco principal</div><div style={{fontSize:14,color:C.red,fontWeight:600}}>{jornada[jor].risco}</div></div>
+<div><div style={{fontSize:11,textTransform:"uppercase",letterSpacing:1,color:C.gray400,marginBottom:4,fontWeight:700}}>Como a Freitas atua</div><div style={{fontSize:14,color:C.magenta,fontWeight:600}}>{jornada[jor].papel}</div></div>
+</div>
+</div>}
+<div style={{background:`linear-gradient(135deg,${C.navy}08,${C.magenta}08)`,borderRadius:12,padding:20,borderLeft:`3px solid ${C.magenta}`}}>
+<div style={{fontSize:13,color:C.gray600,lineHeight:1.7}}><strong style={{color:C.navy}}>10 pontos de perda identificados:</strong> Da compra sem validação aduaneira ao retrabalho entre áreas, cada ponto é uma oportunidade de economia. Empresas que estruturam governança de comex reduzem custos imprevistos em 15-30% e ganham previsibilidade financeira.</div>
+</div>
+</Section>
+
+<Section id={slugify("Compare-se")} dark>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:40,alignItems:"start"}}>
+<div>
+<SectionTitle light sub="Insira setor, volume anual e ticket médio. Em 10 segundos você vê onde sua operação se posiciona vs. o mercado nacional, com os riscos críticos do seu perfil.">Compare sua operação</SectionTitle>
+<div style={{display:'flex',flexDirection:'column',gap:14,marginTop:24}}>
+{[{ic:'🎯',t:'Posição relativa',d:'Sua escala estimada vs. o volume nacional do setor.'},{ic:'📊',t:'Score Comex do setor',d:'Indicador de complexidade e exposição (0-100).'},{ic:'⚠️',t:'Riscos críticos do perfil',d:'Pontos onde empresas como a sua mais perdem margem.'}].map((it,i)=>
+<div key={i} style={{display:'flex',gap:14,alignItems:'start'}}>
+<div style={{fontSize:22}}>{it.ic}</div>
+<div><div style={{fontFamily:"'Nunito',sans-serif",fontSize:14,fontWeight:700,color:C.white}}>{it.t}</div><div style={{fontSize:13,color:'#c5c5dd',marginTop:2}}>{it.d}</div></div>
+</div>)}
+</div>
+</div>
+<div style={{background:"rgba(255,255,255,0.04)",borderRadius:16,padding:32,border:"1px solid rgba(255,255,255,0.06)"}}><CompareYourself/></div>
+</div>
+</Section>
+
+<Section id={slugify("Metodologia")}>
+<SectionTitle sub="Transparência total sobre fontes, lacunas e metodologia. Dados verificados em fontes públicas e setoriais.">Metodologia e Fontes</SectionTitle>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,marginBottom:32}}>
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)"}}>
+<h4 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 16px"}}>Fontes Utilizadas</h4>
+{[{n:"MDIC / Comex Stat",t:"Oficial",u:"Big numbers, séries históricas, por UF e NCM"},{n:"FGV / IBRE / Icomex",t:"Acadêmico",u:"Análise histórica, categorias de uso"},{n:"ABIMAQ",t:"Setorial",u:"Máquinas e equipamentos"},{n:"ABIQUIM",t:"Setorial",u:"Setor químico"},{n:"Sindipeças",t:"Setorial",u:"Autopeças"},{n:"Receita Federal",t:"Oficial",u:"Canais, despacho, DUIMP"},{n:"Bain & Company",t:"Consultoria",u:"Demurrage portuária"},{n:"World Bank LPI",t:"Internacional",u:"Ranking logístico"}].map((f,i)=>
+<div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderBottom:`1px solid ${C.gray100}`,alignItems:"baseline"}}>
+<span style={{fontSize:12,fontWeight:700,color:C.navy,minWidth:140}}>{f.n}</span>
+<span style={{fontSize:10,background:C.gray100,padding:"2px 6px",borderRadius:4,color:C.gray600,fontWeight:600}}>{f.t}</span>
+<span style={{fontSize:12,color:C.gray400,flex:1}}>{f.u}</span>
+</div>)}
+</div>
+<div style={{background:C.white,borderRadius:12,padding:24,boxShadow:"0 2px 12px rgba(44,45,101,0.06)"}}>
+<h4 style={{fontFamily:"'Nunito',sans-serif",fontSize:16,fontWeight:800,color:C.navy,margin:"0 0 16px"}}>Lacunas Identificadas</h4>
+{[{l:"Lead time médio por setor e porto",i:"Média"},{l:"Distribuição % por canal de parametrização",i:"Alta"},{l:"Custo de armazenagem por porto/dia",i:"Média"},{l:"Ex-tarifários aprovados por setor",i:"Baixa"},{l:"Dados DUIMP por setor",i:"Média"},{l:"Impacto quantitativo CBS/IBS (2026)",i:"Alta"}].map((x,i)=>
+<div key={i} style={{padding:"10px 0",borderBottom:`1px solid ${C.gray100}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+<span style={{fontSize:12,color:C.navy,fontWeight:600}}>{x.l}</span>
+<span style={{fontSize:10,padding:"2px 6px",borderRadius:4,fontWeight:700,background:x.i==="Alta"?"#FED7D7":x.i==="Média"?"#FEFCBF":"#C6F6D5",color:x.i==="Alta"?C.red:x.i==="Média"?"#975A16":C.green}}>{x.i}</span>
+</div>)}
+</div>
+</div>
+<div style={{background:C.white,borderRadius:12,padding:20,boxShadow:"0 2px 12px rgba(44,45,101,0.06)",fontSize:12,color:C.gray600,lineHeight:1.7}}>
+<strong style={{color:C.navy}}>Nota metodológica:</strong> Os Scores Comex (por setor e por UF) foram calculados a partir de ponderação de 8 critérios: volume importado (20%), crescimento (15%), complexidade regulatória (15%), exposição tributária (10%), potencial de ex-tarifário (10%), risco documental (10%), impacto financeiro do atraso (10%), dependência de fornecedores internacionais (10%). A ferramenta "Compare sua operação" usa auto-relato e deve ser interpretada como indicativo. Última atualização: maio/2026.
+</div>
+</Section>
+
+<Section id="contato" dark>
+<div style={{textAlign:"center",maxWidth:700,margin:"0 auto"}}>
+<SectionTitle light sub="Há mais de 30 anos simplificando o comércio exterior com inteligência, tecnologia e atendimento próximo. Vamos conversar sobre sua operação?">Próximo passo: diagnóstico gratuito</SectionTitle>
+<a href="https://wa.me/554730458200" target="_blank" style={{display:"inline-flex",alignItems:"center",gap:10,padding:"16px 40px",background:`linear-gradient(135deg,${C.magenta} 0%,${C.orange} 100%)`,color:C.white,borderRadius:28,fontSize:16,fontWeight:800,textDecoration:"none",fontFamily:"'Nunito',sans-serif"}}>Falar com a Freitas no WhatsApp</a>
+</div>
+</Section>
+
+<div style={{background:"#1a1b3d",padding:"32px 24px",textAlign:"center"}}>
+<div style={{marginBottom:12,display:'inline-block',background:'#fff',padding:'8px 14px',borderRadius:8}}><img src="https://inovaweb.freitascomex.com.br/img/Freitas-Logo-Branco.png" alt="Freitas" style={{height:28,verticalAlign:'middle'}}/></div>
+<div style={{fontSize:11,color:"#9595b8",lineHeight:1.6}}>Itajaí (SC) · Curitiba (PR) · Joinville (SC) · São Francisco do Sul (SC)<br/>freitascomex.com.br · +55 (47) 3045-8200</div>
+<div style={{fontSize:10,color:"#5a5a8a",marginTop:12}}>Dashboard produzido pela Raz Consulting · Dados: fontes públicas e setoriais · Atualização: maio/2026</div>
+</div>
+</div>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Dashboard/>);
+</script>
+</body>
+</html>
