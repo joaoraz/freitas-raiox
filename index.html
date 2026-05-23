@@ -11,26 +11,24 @@
         body { font-family: 'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif; }
         html { scroll-behavior: smooth; }
         #loading { display:flex; align-items:center; justify-content:center; height:100vh; color:#6e6e8a; font-size:14px; }
+        input::placeholder { color: #b0b0c4; }
     </style>
 </head>
 <body>
-    <div id="root"><div id="loading">Carregando painel...</div></div>
+    <div id="root"><div id="loading">Carregando...</div></div>
 
     <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/react-is@18.2.0/umd/react-is.production.min.js"></script>
-    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
 
     <script>
-    window.onerror = function(msg, url, line, col, err) {
-      document.getElementById('root').innerHTML = '<div style="padding:40px;color:#dc2626;font-size:14px;"><b>Erro ao carregar:</b><br>' + msg + '<br>Linha: ' + line + '</div>';
+    window.onerror = function(msg) {
+      document.getElementById('root').innerHTML = '<div style="padding:40px;color:#dc2626;font-size:13px"><b>Erro:</b> ' + msg + '</div>';
     };
     </script>
 
     <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
-const { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } = Recharts;
 
 
 function SvgIcon({paths, size=24, color="currentColor", style={}}) {
@@ -40,30 +38,27 @@ function SvgIcon({paths, size=24, color="currentColor", style={}}) {
     </svg>
   );
 }
-function Calculator(p) { return <SvgIcon {...p} paths={["M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z","M8 6h.01","M16 6h.01","M8 10h.01","M16 10h.01","M8 14h.01","M16 14h.01"]}/>; }
-function BarChart3(p) { return <SvgIcon {...p} paths={["M3 3v18h18","M7 17V13","M11 17V9","M15 17V5","M19 17V7"]}/>; }
-function Route(p) { return <SvgIcon {...p} paths={["M3 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0z","M17 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0z","M7 17h3a4 4 0 0 0 4-4V11a4 4 0 0 1 4-4h1"]}/>; }
-function AlertTriangle(p) { return <SvgIcon {...p} paths={["M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z","M12 9v4","M12 17h.01"]}/>; }
-function Target(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z","M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"]}/>; }
-function ArrowRight(p) { return <SvgIcon {...p} paths={["M5 12h14","M12 5l7 7-7 7"]}/>; }
-function CheckCircle2(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M9 12l2 2 4-4"]}/>; }
-function Shield(p) { return <SvgIcon {...p} paths={["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"]}/>; }
-function TrendingUp(p) { return <SvgIcon {...p} paths={["M23 6l-9.5 9.5-5-5L1 18","M17 6h6v6"]}/>; }
-function MapPin(p) { return <SvgIcon {...p} paths={["M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z","M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"]}/>; }
-function Building2(p) { return <SvgIcon {...p} paths={["M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18z","M2 22h20","M6 12h.01","M10 12h.01","M14 12h.01"]}/>; }
-function FileCheck(p) { return <SvgIcon {...p} paths={["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z","M14 2v6h6","M9 15l2 2 4-4"]}/>; }
-function Ship(p) { return <SvgIcon {...p} paths={["M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1","M4 17l1-5h14l1 5","M12 2v5","M7 7h10"]}/>; }
-function Package(p) { return <SvgIcon {...p} paths={["M16.5 9.4l-9-5.19","M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z","M3.27 6.96L12 12.01l8.73-5.05","M12 22.08V12"]}/>; }
-function Truck(p) { return <SvgIcon {...p} paths={["M1 3h15v13H1z","M16 8h4l3 3v5h-7V8z","M5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z","M18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"]}/>; }
-function Search(p) { return <SvgIcon {...p} paths={["M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z","M21 21l-4.35-4.35"]}/>; }
-function BookOpen(p) { return <SvgIcon {...p} paths={["M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z","M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"]}/>; }
-function DollarSign(p) { return <SvgIcon {...p} paths={["M12 1v22","M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"]}/>; }
-function Clock(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6v6l4 2"]}/>; }
-function XCircle(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M15 9l-6 6","M9 9l6 6"]}/>; }
-function Lock(p) { return <SvgIcon {...p} paths={["M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z","M7 11V7a5 5 0 0 1 10 0v4"]}/>; }
-function Users(p) { return <SvgIcon {...p} paths={["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2","M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z","M23 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75"]}/>; }
-function Award(p) { return <SvgIcon {...p} paths={["M12 2a7 7 0 0 0-4.6 12.3L6 22l6-3 6 3-1.4-7.7A7 7 0 0 0 12 2z"]}/>; }
-function Zap(p) { return <SvgIcon {...p} paths={["M13 2L3 14h9l-1 8 10-12h-9l1-8z"]}/>; }
+function Calculator(p){return <SvgIcon {...p} paths={["M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z","M8 6h.01","M16 6h.01","M8 10h.01","M16 10h.01","M8 14h.01","M16 14h.01"]}/>;}
+function BarChart3(p){return <SvgIcon {...p} paths={["M3 3v18h18","M7 17V13","M11 17V9","M15 17V5","M19 17V7"]}/>;}
+function Route(p){return <SvgIcon {...p} paths={["M3 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0z","M17 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0z","M7 17h3a4 4 0 0 0 4-4V11a4 4 0 0 1 4-4h1"]}/>;}
+function AlertTriangle(p){return <SvgIcon {...p} paths={["M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z","M12 9v4","M12 17h.01"]}/>;}
+function Target(p){return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z","M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"]}/>;}
+function ArrowRight(p){return <SvgIcon {...p} paths={["M5 12h14","M12 5l7 7-7 7"]}/>;}
+function CheckCircle2(p){return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M9 12l2 2 4-4"]}/>;}
+function Shield(p){return <SvgIcon {...p} paths={["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"]}/>;}
+function TrendingUp(p){return <SvgIcon {...p} paths={["M23 6l-9.5 9.5-5-5L1 18","M17 6h6v6"]}/>;}
+function MapPin(p){return <SvgIcon {...p} paths={["M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z","M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"]}/>;}
+function Building2(p){return <SvgIcon {...p} paths={["M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18z","M2 22h20","M6 12h.01","M10 12h.01","M14 12h.01"]}/>;}
+function FileCheck(p){return <SvgIcon {...p} paths={["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z","M14 2v6h6","M9 15l2 2 4-4"]}/>;}
+function Ship(p){return <SvgIcon {...p} paths={["M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1","M4 17l1-5h14l1 5","M12 2v5","M7 7h10"]}/>;}
+function Package(p){return <SvgIcon {...p} paths={["M16.5 9.4l-9-5.19","M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z","M3.27 6.96L12 12.01l8.73-5.05","M12 22.08V12"]}/>;}
+function Truck(p){return <SvgIcon {...p} paths={["M1 3h15v13H1z","M16 8h4l3 3v5h-7V8z","M5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z","M18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"]}/>;}
+function Search(p){return <SvgIcon {...p} paths={["M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z","M21 21l-4.35-4.35"]}/>;}
+function BookOpen(p){return <SvgIcon {...p} paths={["M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z","M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"]}/>;}
+function DollarSign(p){return <SvgIcon {...p} paths={["M12 1v22","M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"]}/>;}
+function Clock(p){return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6v6l4 2"]}/>;}
+function XCircle(p){return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M15 9l-6 6","M9 9l6 6"]}/>;}
+function Lock(p){return <SvgIcon {...p} paths={["M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z","M7 11V7a5 5 0 0 1 10 0v4"]}/>;}
 
 
 
@@ -529,21 +524,23 @@ function Dashboard() {
             </div>
             <div style={{ fontSize: 11, color: C.gray300, textAlign: "right" }}>Fonte: MDIC/Secex</div>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={balancaData}>
-              <defs>
-                <linearGradient id="gI" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.magenta} stopOpacity={0.12} /><stop offset="95%" stopColor={C.magenta} stopOpacity={0} /></linearGradient>
-                <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.navy} stopOpacity={0.08} /><stop offset="95%" stopColor={C.navy} stopOpacity={0} /></linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={C.gray100} />
-              <XAxis dataKey="ano" tick={{ fontSize: 12, fill: C.gray500 }} />
-              <YAxis tick={{ fontSize: 12, fill: C.gray500 }} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.gray100}`, boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
-              <Area type="monotone" dataKey="exp" name="Exportações" stroke={C.navy} fill="url(#gE)" strokeWidth={1.5} />
-              <Area type="monotone" dataKey="imp" name="Importações" stroke={C.magenta} fill="url(#gI)" strokeWidth={2} />
-              <Legend />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div style={{height:220}}>
+              <div style={{display:"flex",alignItems:"flex-end",gap:8,height:180,padding:"0 4px"}}>
+                {balancaData.map((d,i) => (
+                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                    <div style={{display:"flex",gap:2,alignItems:"flex-end",width:"100%",height:160}}>
+                      <div style={{flex:1,background:C.navy,borderRadius:"3px 3px 0 0",opacity:0.7,height:`${(d.exp/350)*100}%`,transition:"height 0.8s ease"}}/>
+                      <div style={{flex:1,background:C.magenta,borderRadius:"3px 3px 0 0",opacity:0.7,height:`${(d.imp/350)*100}%`,transition:"height 0.8s ease"}}/>
+                    </div>
+                    <span style={{fontSize:11,color:C.gray500}}>{d.ano}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:16,justifyContent:"center",marginTop:12}}>
+                <div style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:C.gray500}}><div style={{width:10,height:10,borderRadius:2,background:C.navy,opacity:0.7}}/> Exportações</div>
+                <div style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:C.gray500}}><div style={{width:10,height:10,borderRadius:2,background:C.magenta,opacity:0.7}}/> Importações</div>
+              </div>
+            </div>
           <FreitasNote>O déficit de 2025 (estimado em US$ 68 bi) reflete aumento de demanda por bens de capital. Mais concorrência nos portos, filas maiores e custos logísticos em alta. A Freitas monitora esses indicadores para antecipar gargalos nos embarques dos clientes.</FreitasNote>
         </div>
 
@@ -551,16 +548,17 @@ function Dashboard() {
           <div style={{ background: C.white, borderRadius: 12, padding: 24, border: `1px solid ${C.gray100}` }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: C.gray900, margin: "0 0 4px" }}>Principais origens (2024)</h3>
             <p style={{ fontSize: 12, color: C.gray300, margin: "0 0 16px" }}>China + EUA = 39% das importações brasileiras</p>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={paisesData} layout="vertical" margin={{ left: 70 }}>
-                <XAxis type="number" tick={{ fontSize: 11, fill: C.gray500 }} />
-                <YAxis type="category" dataKey="pais" tick={{ fontSize: 12, fill: C.gray500 }} width={65} />
-                <Tooltip contentStyle={{ borderRadius: 6, border: `1px solid ${C.gray100}` }} />
-                <Bar dataKey="valor" name="US$ bi" radius={[0, 4, 4, 0]}>
-                  {paisesData.map((_, i) => <Cell key={i} fill={i === 0 ? C.navy : i === 1 ? C.magenta : C.gray200} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div>
+              {paisesData.map((p,i) => (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                  <div style={{width:70,fontSize:12,color:C.gray500,textAlign:"right"}}>{p.pais}</div>
+                  <div style={{flex:1,height:18,background:C.gray50,borderRadius:6,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${(p.valor/65)*100}%`,background:i===0?C.navy:i===1?C.magenta:C.gray200,borderRadius:6,transition:"width 0.8s ease"}}/>
+                  </div>
+                  <div style={{width:45,fontSize:12,fontWeight:600,color:C.gray700}}>{p.valor}</div>
+                </div>
+              ))}
+            </div>
             <FreitasNote>Alta concentração em China e EUA significa risco geopolítico. A Freitas acompanha tarifas, restrições e rotas alternativas para cada origem.</FreitasNote>
           </div>
           <div style={{ background: C.white, borderRadius: 12, padding: 24, border: `1px solid ${C.gray100}` }}>
