@@ -1,171 +1,720 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Raio-X do Comércio Exterior Brasileiro 2026 | Freitas Comex</title>
-<meta name="description" content="Os números que diretores de comex usam pra defender orçamento, num dashboard interativo. Importações em recorde, +1.000 NCMs com II elevado, US$ 2,3 bi em demurrage.">
-<link rel="icon" href="logo-freitas.png">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script type="text/javascript" async src="https://d335luupugsy2.cloudfront.net/cms/external_libs/unified.js"></script>
-<style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--primary:#2c2d65;--secondary:#ce0f69;--accent:#ff9e1b;--accent-light:#ffd699;--card:#F7F6FB;--border:#E5E2F0;--muted:#5a5a8a;--dim:#9595b8}
-body{font-family:'Source Sans 3','Nunito',-apple-system,sans-serif;color:var(--primary);background:#fff;overflow-x:hidden}
-h1,h2,h3{font-family:'Nunito',sans-serif}
-.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
-.hero-left{padding:64px 56px;display:flex;flex-direction:column;justify-content:center}
-.hero-right{background:linear-gradient(160deg,#2c2d65 0%,#3d3e8a 50%,#ce0f69 100%);padding:64px 48px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
-.hero-right::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(255,158,27,0.18) 0%,transparent 65%);top:-120px;right:-120px;border-radius:50%}
-.hero-right::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(206,15,105,0.15) 0%,transparent 70%);bottom:-100px;left:-100px;border-radius:50%}
-.logo-row{display:flex;align-items:center;margin-bottom:48px}
-.logo-img{height:44px}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;background:#fff4e0;color:var(--primary);padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:24px;width:fit-content;border:1px solid var(--accent-light)}
-.hero-badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%}
-.hero-title{font-size:42px;font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:20px}
-.hero-title span{color:var(--secondary)}
-.hero-sub{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:36px;max-width:500px}
-.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px}
-.stat-mini{padding:18px;background:var(--card);border-radius:12px;border:1px solid var(--border);transition:transform .2s}
-.stat-mini:hover{transform:translateY(-2px)}
-.stat-mini .val{font-size:22px;font-weight:800;color:var(--secondary);font-family:'Nunito',sans-serif}
-.stat-mini .lbl{font-size:11px;color:var(--dim);margin-top:4px;font-weight:500;line-height:1.4}
-.hero-sources{font-size:11px;color:var(--dim)}
-.form-card{background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:36px 32px;position:relative;z-index:1}
-.form-title{font-size:22px;font-weight:800;color:#FFF;margin-bottom:6px;font-family:'Nunito',sans-serif}
-.form-sub{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:28px;line-height:1.6}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:5px}
-.field input,.field select{width:100%;padding:11px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#FFF;font-size:14px;font-family:inherit;outline:none;transition:all .2s}
-.field input::placeholder{color:rgba(255,255,255,.4)}
-.field input:focus,.field select:focus{border-color:var(--accent);background:rgba(255,255,255,.14)}
-.field select option{background:var(--primary);color:#FFF}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.submit-btn{width:100%;padding:14px;background:var(--accent);color:var(--primary);border:none;border-radius:24px;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:8px;font-family:'Nunito',sans-serif}
-.submit-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,158,27,.35)}
-.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.form-footer{text-align:center;font-size:11px;color:rgba(255,255,255,.55);margin-top:14px;line-height:1.5}
-.form-error{background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.35);color:#FCA5A5;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none}
-.proof-section{padding:64px 56px;background:var(--card);border-top:1px solid var(--border)}
-.proof-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
-.proof-card{text-align:center;padding:32px 24px}
-.proof-icon{font-size:36px;margin-bottom:16px}
-.proof-title{font-size:16px;font-weight:800;color:var(--primary);margin-bottom:8px;font-family:'Nunito',sans-serif}
-.proof-text{font-size:13px;color:var(--muted);line-height:1.6}
-.lp-footer{padding:24px 56px;text-align:center;font-size:11px;color:var(--dim);border-top:1px solid var(--border)}
-@media(max-width:1024px){.hero{grid-template-columns:1fr;min-height:auto}.hero-left{padding:40px 24px}.hero-right{padding:40px 24px}.hero-title{font-size:32px}.logo-img{height:36px}}
-@media(max-width:768px){.proof-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.proof-section,.lp-footer{padding-left:20px;padding-right:20px}.form-card{padding:28px 20px}.hero-title{font-size:28px}.form-title{font-size:18px}.stat-mini .val{font-size:20px}}
-@media(max-width:480px){.hero-stats{grid-template-columns:1fr}.hero-left{padding:32px 16px}.hero-right{padding:32px 16px}.hero-title{font-size:24px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Inteligência Aduaneira | Freitas Comex</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif; }
+        html { scroll-behavior: smooth; }
+    </style>
 </head>
 <body>
-<section class="hero">
-<div class="hero-left">
-<div class="logo-row"><img src="https://inovaweb.freitascomex.com.br/img/Freitas-Logo-Branco.png" alt="Freitas" class="logo-img"></div>
-<div class="hero-badge">Inteligência de Mercado · 2026</div>
-<h1 class="hero-title">Raio-X do<br>Comércio Exterior <span>Brasileiro</span></h1>
-<p class="hero-sub">Os mesmos dados que diretores de comex usam pra defender orçamento, agora num dashboard interativo. Veja onde os US$ 2,3 bi anuais de demurrage somem, quais NCMs subiram em 2026 e como sua operação se compara ao mercado.</p>
-<div class="hero-stats">
-<div class="stat-mini"><div class="val">US$ 280,4 bi</div><div class="lbl">Importações em 2025 (recorde)</div></div>
-<div class="stat-mini"><div class="val">+1.000 NCMs</div><div class="lbl">Com II elevado em 2026 (GECEX 852)</div></div>
-<div class="stat-mini"><div class="val">23,15%</div><div class="lbl">DIs em conferência (não-OEA)</div></div>
-<div class="stat-mini"><div class="val">US$ 2,3 bi</div><div class="lbl">Em demurrage no último ano</div></div>
-</div>
-<p class="hero-sources">Fontes oficiais: MDIC/Secex · ABIMAQ · ABIQUIM · FGV/IBRE · Receita Federal · Bain &amp; Company</p>
-</div>
-<div class="hero-right">
-<div class="form-card">
-<h2 class="form-title">Liberar acesso ao dashboard</h2>
-<p class="form-sub">Preencha em 30 segundos. O código de acesso chega no seu e-mail e libera o Raio-X completo.</p>
-<div class="form-error" id="formError"></div>
-<form id="leadForm">
-<div class="field-row">
-<div class="field"><label>Nome *</label><input type="text" id="nome" placeholder="Seu nome" required></div>
-<div class="field"><label>Empresa *</label><input type="text" id="empresa" placeholder="Nome da empresa" required></div>
-</div>
-<div class="field-row">
-<div class="field"><label>Cargo</label><input type="text" id="cargo" placeholder="Ex: Diretor de Comex"></div>
-<div class="field"><label>Telefone</label><input type="tel" id="telefone" placeholder="(00) 00000-0000"></div>
-</div>
-<div class="field"><label>E-mail corporativo *</label><input type="email" id="email" placeholder="seu@empresa.com.br" required></div>
-<div class="field-row">
-<div class="field"><label>Volume de importações/ano</label>
-<select id="campo1"><option value="">Selecione</option><option>Até 20 operações</option><option>21 a 100 operações</option><option>101 a 500 operações</option><option>Mais de 500 operações</option></select>
-</div>
-<div class="field"><label>Setor principal</label>
-<select id="campo2"><option value="">Selecione</option><option>Químico / Farma</option><option>Máquinas / Bens de Capital</option><option>Automotivo / Autopeças</option><option>Eletroeletrônicos / Tech</option><option>Outro</option></select>
-</div>
-</div>
-<button type="submit" class="submit-btn" id="submitBtn">Liberar acesso agora</button>
-</form>
-<p class="form-footer">Sem spam. Sem compartilhamento. Dados protegidos pela LGPD.</p>
-</div>
-</div>
-</section>
-<section class="proof-section">
-<div class="proof-grid">
-<div class="proof-card"><div class="proof-icon">🎯</div><div class="proof-title">Dados oficiais, zero achismo</div><p class="proof-text">MDIC, Receita Federal, FGV/IBRE, ABIMAQ, ABIQUIM, Sindipeças, Bain. Cada número com fonte e ano declarados.</p></div>
-<div class="proof-card"><div class="proof-icon">📊</div><div class="proof-title">Compare sua operação</div><p class="proof-text">Insira setor, volume anual e ticket médio. Veja onde sua escala se posiciona e quais riscos são críticos pro seu perfil.</p></div>
-<div class="proof-card"><div class="proof-icon">⚙️</div><div class="proof-title">Simulador de landed cost</div><p class="proof-text">FOB, frete, II, ICMS, AFRMM, despesas aduaneiras. Cálculo em tempo real ajustando câmbio e alíquotas.</p></div>
-</div>
-</section>
-<div class="lp-footer">© 2026 Freitas Comex · Itajaí (SC) · Curitiba (PR) · Joinville (SC) · São Francisco do Sul (SC) · freitascomex.com.br</div>
-<script>
-// ============================================
-// CONFIG RD STATION
-// Cole seu Token Público entre as aspas abaixo.
-// Painel RD: Configurações → Integrações → Webhooks e API → Token Público
-// Sem token, integração não dispara (form continua funcional via Resend).
-// ============================================
-var RD_TOKEN = '';
-var RD_IDENTIFICADOR = 'lp-raiox-comex';
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.15.3/Recharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide-react/0.383.0/lucide-react.min.js"></script>
+    <script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
+const { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } = Recharts;
+const { Calculator, BarChart3, Route, AlertTriangle, Target, ChevronRight, ChevronDown, Clock, DollarSign, Shield, TrendingUp, MapPin, Building2, FileCheck, Ship, Package, Truck, Search, BookOpen, Phone, ArrowRight, CheckCircle2, XCircle, Circle, Minus, ExternalLink, Menu, X, Lock, Users, Award, Zap } = lucideReact;
 
-var CODE_PREFIX = 'RAX';
 
-function genCode(){var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r='';for(var i=0;i<6;i++)r+=c[Math.floor(Math.random()*c.length)];return CODE_PREFIX+'-'+r}
-function getLeadsDB(){try{return JSON.parse(localStorage.getItem('leads_db')||'[]')}catch(e){return[]}}
-function saveLeadDB(l){var db=getLeadsDB();db.push(l);localStorage.setItem('leads_db',JSON.stringify(db))}
+// ═══════════════════════════════════════════
+// BRAND — Freitas Comex (manual de marca)
+// ═══════════════════════════════════════════
+const C = {
+  navy: "#2c2d65",
+  magenta: "#ce0f69",
+  orange: "#ff9e1b",
+  navy80: "#56578a",
+  magenta20: "#fce8f1",
+  orange20: "#fff4e0",
+  navy08: "#f4f4f9",
+  white: "#FFFFFF",
+  bg: "#FAFAFE",
+  gray50: "#f8f8fc",
+  gray100: "#ededf4",
+  gray200: "#d5d5e0",
+  gray300: "#b0b0c4",
+  gray500: "#6e6e8a",
+  gray700: "#3a3a54",
+  gray900: "#1a1a2e",
+};
 
-function sendToRDStation(d){
-  if(!RD_TOKEN)return;
-  if(typeof RdIntegration==='undefined'){console.warn('RD Station unified.js não carregou');return}
-  try{
-    RdIntegration.post({
-      token_rdstation:RD_TOKEN,
-      identificador:RD_IDENTIFICADOR,
-      email:d.email,nome:d.nome,empresa:d.empresa,
-      cargo:d.cargo,telefone:d.telefone,
-      cf_volume_importacao:d.campo1,
-      cf_setor:d.campo2,
-      tags:'raiox-comex,lp-freitas'
-    });
-    console.log('RD Station: conversão enviada');
-  }catch(e){console.warn('RD Station error:',e)}
+const LOGO_SVG = "data:image/png;base64,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";
+const LOGO_WHITE = "data:image/png;base64,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";
+
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const balancaData = [
+  { ano: "2020", exp: 209.2, imp: 177.1 },
+  { ano: "2021", exp: 280.4, imp: 219.4 },
+  { ano: "2022", exp: 334.0, imp: 272.8 },
+  { ano: "2023", exp: 339.7, imp: 238.8 },
+  { ano: "2024", exp: 337.0, imp: 262.5 },
+  { ano: "2025*", exp: 348.7, imp: 280.4 },
+];
+const paisesData = [
+  { pais: "China", valor: 63.6 }, { pais: "EUA", valor: 40.7 },
+  { pais: "Argentina", valor: 13.3 }, { pais: "Alemanha", valor: 8.5 },
+  { pais: "Coreia do Sul", valor: 4.7 }, { pais: "Índia", valor: 4.3 },
+  { pais: "México", valor: 4.2 }, { pais: "Japão", valor: 4.1 },
+];
+const estadosData = [
+  { uf: "SP", valor: 65.3, pct: 30.8 }, { uf: "SC", valor: 25.4, pct: 12.0 },
+  { uf: "RJ", valor: 24.9, pct: 11.8 }, { uf: "PR", valor: 15.6, pct: 7.4 },
+  { uf: "MG", valor: 13.7, pct: 6.5 }, { uf: "AM", valor: 12.5, pct: 5.9 },
+  { uf: "RS", valor: 10.2, pct: 4.8 }, { uf: "ES", valor: 10.1, pct: 4.8 },
+];
+const setoresData = [
+  { setor: "Químicos e Petroquímicos", score: 92, valor: 63.9, insight: "Maior rubrica de importação. Alta dependência de fornecedores internacionais e volatilidade cambial." },
+  { setor: "Máquinas e Equipamentos", score: 91, valor: 29.5, insight: "Crescimento de 10,6% em 2024. Ex-tarifário é alavanca decisiva para este setor." },
+  { setor: "Farmacêutico", score: 88, valor: 12.35, insight: "Crescimento de 55% na última década. Alta regulação Anvisa e complexidade documental." },
+  { setor: "Automotivo", score: 87, valor: 20.9, insight: "Cadeias just-in-time exigem previsibilidade aduaneira. Demurrage é o maior custo oculto." },
+  { setor: "Eletroeletrônicos", score: 85, valor: 20.0, insight: "Alto volume e complexidade de NCMs. Fiscalização frequente nos canais vermelho e cinza." },
+  { setor: "Tecnologia", score: 83, valor: 8.5, insight: "Importação de hardware e equipamentos de rede. Demanda crescente por data centers." },
+];
+const jornadaEtapas = [
+  { num: "01", titulo: "Planejamento e Sourcing", risco: "Alto", cor: "#dc2626", problema: "Escolher fornecedor sem análise prévia de NCM, tributação e logística pode travar a operação.", impacto: "Reclassificação fiscal, recálculo de custos e atraso na entrega.", freitas: "Análise pré-compra: simulação de landed cost, validação de NCM e viabilidade regulatória antes do pedido.", icon: Search },
+  { num: "02", titulo: "Classificação Fiscal", risco: "Crítico", cor: "#dc2626", problema: "Mais de 10.000 códigos NCM. Classificar errado muda alíquota, exigências e canal de conferência.", impacto: "15-30% a mais de imposto, retenção em canal vermelho e multa de até 1% do valor aduaneiro.", freitas: "Equipe com mais de 30 anos de experiência em classificação fiscal. Revisão de NCMs e identificação de ex-tarifário.", icon: FileCheck },
+  { num: "03", titulo: "Licenciamento e Anuências", risco: "Médio", cor: "#f59e0b", problema: "Produtos sujeitos a anuência (Anvisa, MAPA, Inmetro) exigem licenças prévias.", impacto: "Atraso de 15-45 dias quando a licença não está pronta. Custos de armazenagem e demurrage.", freitas: "Gestão completa de licenciamento. Monitoramento de prazos e antecipação de renovações.", icon: Shield },
+  { num: "04", titulo: "Embarque Internacional", risco: "Médio", cor: "#f59e0b", problema: "Frete volátil, rotas com transbordo, seguros inadequados.", impacto: "Frete = 8-15% do landed cost. Escolhas ruins comprimem margem de forma irreversível.", freitas: "Cotação multimodal. Negociação de contratos de frete e monitoramento de embarques em tempo real.", icon: Ship },
+  { num: "05", titulo: "Desembaraço Aduaneiro", risco: "Crítico", cor: "#dc2626", problema: "Parametrização em canal vermelho, exigências fiscais, divergências documentais.", impacto: "US$ 500-2.000 por contêiner/dia em demurrage, armazenagem e custo financeiro.", freitas: "Despacho aduaneiro próprio em Itajaí, Navegantes, São Francisco do Sul, Paranaguá e Santos.", icon: Package },
+  { num: "06", titulo: "Conferência Aduaneira", risco: "Alto", cor: "#dc2626", problema: "Canal verde = ~65% das DIs. Canais amarelo, vermelho e cinza exigem documentação ou inspeção.", impacto: "Canal vermelho: +3-7 dias. Canal cinza: +15-60 dias. Custos explodem.", freitas: "Documentação preparada para resistir a qualquer canal. Acompanhamento presencial de vistorias.", icon: Search },
+  { num: "07", titulo: "Tributação e Pagamento", risco: "Alto", cor: "#f59e0b", problema: "II, IPI, PIS, COFINS, ICMS, AFRMM, Siscomex. Carga tributária de 60-100% sobre o CIF.", impacto: "Erros tributários geram autos de infração, multas de 75-150% e bloqueio de futuras importações.", freitas: "Cálculo tributário detalhado. Regimes especiais (Drawback, Recof, Ex-tarifário) para redução fiscal.", icon: DollarSign },
+  { num: "08", titulo: "Transporte Nacional", risco: "Médio", cor: "#f59e0b", problema: "Logística interna fragmentada, risco de sinistro, atrasos rodoviários.", impacto: "Perdas com sinistros de carga: ~R$ 1,5 bi/ano no Brasil.", freitas: "Coordenação door-to-door. Parceiros logísticos homologados e rastreamento até a entrega.", icon: Truck },
+  { num: "09", titulo: "Compliance Pós-Desembaraço", risco: "Médio", cor: "#f59e0b", problema: "A RFB pode revisar importações até 5 anos após o desembaraço.", impacto: "Revisões pós-desembaraço = 12% das autuações fiscais em comex.", freitas: "Arquivo digital completo, conciliação de dados e revisão periódica de operações passadas.", icon: Shield },
+  { num: "10", titulo: "Inteligência e Melhoria Contínua", risco: "Oportunidade", cor: "#16a34a", problema: "A maioria trata importação como operação pontual, sem análise de dados ou benchmarks.", impacto: "Empresas com inteligência de comex reduzem custos em 8-15% ao ano.", freitas: "Dashboards de gestão, relatórios de performance, análise comparativa e sugestões de otimização.", icon: TrendingUp },
+];
+const custosOcultos = [
+  { nome: "Demurrage e Detention", valor: "US$ 2,3 bi/ano", desc: "Custo nacional com atrasos na devolução de contêineres. Média de US$ 150 a 300 por dia, por contêiner.", icon: Clock },
+  { nome: "Armazenagem Portuária", valor: "US$ 800 a 2.000/cntr", desc: "Custo diário que se acumula durante a liberação. Após 10 dias, pode superar o frete.", icon: Package },
+  { nome: "Reclassificação Fiscal", valor: "Multa de até 1% VA", desc: "NCM divergente gera multa sobre o valor aduaneiro mais diferença de impostos.", icon: AlertTriangle },
+  { nome: "Canal Vermelho ou Cinza", valor: "+3 a 60 dias", desc: "Inspeção física ou valoração aduaneira. Atraso, armazenagem e perda de janela comercial.", icon: XCircle },
+  { nome: "Variação Cambial", valor: "2 a 5% do valor", desc: "Oscilação entre data do pedido e pagamento. Sem hedge, R$ 0,10 no dólar muda o resultado.", icon: TrendingUp },
+  { nome: "AFRMM e Taxas", valor: "25% do frete", desc: "Adicional ao Frete para Renovação da Marinha Mercante. Frequentemente esquecido no cálculo.", icon: Ship },
+];
+
+// ═══════════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════════
+function AnimNum({ end, prefix = "", suffix = "", duration = 2000, decimals = 1 }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true;
+        const s = performance.now();
+        const go = (n) => { const p = Math.min((n - s) / duration, 1); setVal((1 - Math.pow(1 - p, 3)) * end); if (p < 1) requestAnimationFrame(go); };
+        requestAnimationFrame(go);
+      }
+    }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [end, duration]);
+  return <span ref={ref}>{prefix}{val.toFixed(decimals)}{suffix}</span>;
 }
 
-document.getElementById('leadForm').addEventListener('submit',function(e){
-  e.preventDefault();
-  var btn=document.getElementById('submitBtn'),err=document.getElementById('formError');
-  err.style.display='none';
-  var nome=document.getElementById('nome').value.trim();
-  var empresa=document.getElementById('empresa').value.trim();
-  var email=document.getElementById('email').value.trim();
-  var cargo=document.getElementById('cargo').value.trim();
-  var telefone=document.getElementById('telefone').value.trim();
-  var campo1=document.getElementById('campo1').value;
-  var campo2=document.getElementById('campo2').value;
-  if(!nome||!empresa||!email){err.textContent='Preencha os campos obrigatórios: Nome, Empresa e E-mail.';err.style.display='block';return}
-  if(email.indexOf('@')===-1){err.textContent='Informe um e-mail válido.';err.style.display='block';return}
-  btn.disabled=true;btn.textContent='Gerando código...';
-  var code=genCode();
-  var lead={nome:nome,empresa:empresa,email:email,cargo:cargo,telefone:telefone,campo1:campo1,campo2:campo2,code:code,created_at:new Date().toISOString()};
-  saveLeadDB(lead);
-  sendToRDStation(lead);
-  btn.textContent='Enviando código por e-mail...';
-  fetch('/api/send-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)})
-    .then(function(r){return r.json()}).then(function(d){console.log('Email sent:',d)}).catch(function(e){console.warn('Email error:',e)});
-  setTimeout(function(){window.location.href='obrigado.html?code='+code+'&email='+encodeURIComponent(email)+'&nome='+encodeURIComponent(nome)},1500);
-});
-</script>
+function Sect({ children, id, bg = C.white, style = {} }) {
+  return <div id={id} style={{ background: bg, padding: "72px 24px", scrollMarginTop: 60, ...style }}><div style={{ maxWidth: 960, margin: "0 auto" }}>{children}</div></div>;
+}
+
+function Tag({ children }) {
+  return <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.magenta, marginBottom: 12 }}>{children}</div>;
+}
+
+function H2({ children, sub }) {
+  return <div style={{ marginBottom: 40 }}><h2 style={{ fontSize: 26, fontWeight: 700, color: C.gray900, margin: 0, lineHeight: 1.25, letterSpacing: -0.3 }}>{children}</h2>{sub && <p style={{ fontSize: 15, color: C.gray500, marginTop: 10, lineHeight: 1.7, maxWidth: 640 }}>{sub}</p>}</div>;
+}
+
+function FreitasNote({ children }) {
+  return <div style={{ borderLeft: `3px solid ${C.magenta}`, padding: "12px 16px", marginTop: 16, background: C.magenta20, borderRadius: "0 8px 8px 0" }}><div style={{ fontSize: 11, fontWeight: 700, color: C.magenta, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Leitura dos Especialistas Freitas</div><div style={{ fontSize: 13, color: C.gray700, lineHeight: 1.65 }}>{children}</div></div>;
+}
+
+function ToolHeader({ icon: Icon, title, desc }) {
+  return <div style={{ marginBottom: 28 }}><div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}><div style={{ width: 40, height: 40, borderRadius: 10, background: C.navy, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={20} color={C.white} /></div><div><div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", color: C.magenta }}>Ferramenta Interativa</div><div style={{ fontSize: 18, fontWeight: 700, color: C.gray900 }}>{title}</div></div></div>{desc && <p style={{ fontSize: 14, color: C.gray500, lineHeight: 1.6, marginLeft: 52 }}>{desc}</p>}</div>;
+}
+
+// ═══════════════════════════════════════════
+// SIMULADOR
+// ═══════════════════════════════════════════
+function Simulador() {
+  const [fob, setFob] = useState(100000);
+  const [frete, setFrete] = useState(8);
+  const [seguro, setSeguro] = useState(1);
+  const [ii, setIi] = useState(14);
+  const [ipi, setIpi] = useState(10);
+  const [pis, setPis] = useState(2.1);
+  const [cofins, setCofins] = useState(9.65);
+  const [icms, setIcms] = useState(18);
+
+  const cif = fob * (1 + frete / 100 + seguro / 100);
+  const vII = cif * (ii / 100);
+  const vIPI = (cif + vII) * (ipi / 100);
+  const vPIS = cif * (pis / 100);
+  const vCOF = cif * (cofins / 100);
+  const baseICMS = (cif + vII + vIPI + vPIS + vCOF) / (1 - icms / 100);
+  const vICMS = baseICMS * (icms / 100);
+  const afrmm = fob * (frete / 100) * 0.25;
+  const siscomex = 214.50;
+  const totalTax = vII + vIPI + vPIS + vCOF + vICMS + afrmm + siscomex;
+  const landed = cif + totalTax;
+  const pctFob = ((landed / fob - 1) * 100);
+
+  const Sl = ({ label, value, onChange, min, max, step = 0.1, unit = "%", hint }) => (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: C.gray700 }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: C.navy }}>{unit === "US$" ? `US$ ${value.toLocaleString("pt-BR")}` : `${value}${unit}`}</span>
+      </div>
+      {hint && <div style={{ fontSize: 11, color: C.gray300, marginBottom: 4 }}>{hint}</div>}
+      <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(Number(e.target.value))} style={{ width: "100%", accentColor: C.navy, height: 4 }} />
+    </div>
+  );
+
+  const Ln = ({ label, value }) => (
+    <div style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${C.gray100}`, fontSize: 13 }}>
+      <span style={{ color: C.gray500 }}>{label}</span>
+      <span style={{ fontWeight: 600, color: C.gray900 }}>US$ {value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</span>
+    </div>
+  );
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: C.gray700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 1 }}>Parâmetros</div>
+        <Sl label="Valor FOB" value={fob} onChange={setFob} min={5000} max={5000000} step={5000} unit="US$" hint="Valor da mercadoria na origem" />
+        <Sl label="Frete Internacional" value={frete} onChange={setFrete} min={1} max={25} hint="% do FOB em transporte" />
+        <Sl label="Seguro" value={seguro} onChange={setSeguro} min={0.1} max={5} hint="Seguro de transporte internacional" />
+        <div style={{ height: 1, background: C.gray100, margin: "12px 0" }} />
+        <Sl label="II (Imposto de Importação)" value={ii} onChange={setIi} min={0} max={35} hint="Varia conforme NCM" />
+        <Sl label="IPI" value={ipi} onChange={setIpi} min={0} max={30} hint="Sobre CIF + II" />
+        <Sl label="PIS-Importação" value={pis} onChange={setPis} min={0} max={3.65} step={0.05} />
+        <Sl label="COFINS-Importação" value={cofins} onChange={setCofins} min={0} max={12} step={0.05} />
+        <Sl label="ICMS" value={icms} onChange={setIcms} min={0} max={25} hint="Varia por UF e produto" />
+      </div>
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: C.gray700, marginBottom: 16, textTransform: "uppercase", letterSpacing: 1 }}>Resultado</div>
+        <div style={{ background: C.navy, borderRadius: 12, padding: 24, marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5 }}>Custo Total Nacionalizado</div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: C.white, marginTop: 4 }}>US$ {landed.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</div>
+          <div style={{ fontSize: 13, color: C.orange, fontWeight: 600, marginTop: 4 }}>+{pctFob.toFixed(1)}% sobre o FOB</div>
+          <div style={{ fontSize: 12, color: C.gray300, marginTop: 8, lineHeight: 1.5 }}>Para cada US$ 1,00 comprado, o custo final é US$ {(landed / fob).toFixed(2)} no estoque.</div>
+        </div>
+        <Ln label="Valor CIF" value={cif} />
+        <Ln label="II" value={vII} />
+        <Ln label="IPI" value={vIPI} />
+        <Ln label="PIS" value={vPIS} />
+        <Ln label="COFINS" value={vCOF} />
+        <Ln label="ICMS (por dentro)" value={vICMS} />
+        <Ln label="AFRMM" value={afrmm} />
+        <Ln label="Taxa Siscomex" value={siscomex} />
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", marginTop: 4, fontSize: 14, fontWeight: 700, color: C.gray900 }}>
+          <span>Total de Tributos</span>
+          <span style={{ color: C.magenta }}>US$ {totalTax.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</span>
+        </div>
+        <FreitasNote>
+          Os tributos representam {((totalTax / fob) * 100).toFixed(0)}% do valor FOB.
+          {ii >= 14 && ` NCMs com II acima de 14% podem ser elegíveis a ex-tarifário, zerando o II, com economia de US$ ${vII.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} nesta simulação.`}
+        </FreitasNote>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// SCORE
+// ═══════════════════════════════════════════
+function ScoreCalc() {
+  const qs = [
+    { q: "Sua empresa importou nos últimos 12 meses?", opts: ["Sim, regularmente", "Pontualmente", "Não"], scores: [3, 2, 0] },
+    { q: "Você sabe quanto paga de tributos por operação?", opts: ["Sim, com controle", "Estimativa", "Não sei"], scores: [3, 1, 0] },
+    { q: "Já utilizou ex-tarifário ou regime especial?", opts: ["Sim, ativamente", "Já ouvi falar", "Nunca"], scores: [3, 1, 0] },
+    { q: "Tempo médio de desembaraço?", opts: ["Até 3 dias", "4-10 dias", "Mais de 10 dias"], scores: [3, 2, 0] },
+    { q: "Visibilidade em tempo real da carga?", opts: ["Rastreio completo", "Parcial", "Não"], scores: [3, 1, 0] },
+    { q: "Já teve carga retida ou multa aduaneira?", opts: ["Nunca", "Uma vez", "Mais de uma vez"], scores: [3, 1, 0] },
+    { q: "Equipe de comex é dedicada?", opts: ["Dedicada", "Mista", "Sem controle"], scores: [3, 2, 0] },
+    { q: "Analisa dados das importações para decisão?", opts: ["Sim, com dashboards", "Planilhas", "Não analiso"], scores: [3, 1, 0] },
+  ];
+  const [ans, setAns] = useState(Array(qs.length).fill(-1));
+  const [show, setShow] = useState(false);
+  const total = ans.reduce((s, r, i) => s + (r >= 0 ? qs[i].scores[r] : 0), 0);
+  const pct = Math.round((total / (qs.length * 3)) * 100);
+  const done = ans.every(r => r >= 0);
+  const nivel = pct >= 90 ? { l: "Excelente", c: "#16a34a", d: "Operação madura. A Freitas pode atuar como parceira estratégica para ganhos incrementais." } : pct >= 70 ? { l: "Boa", c: "#22c55e", d: "Base sólida com oportunidades claras. Um diagnóstico pode revelar 8-15% de redução de custos." } : pct >= 50 ? { l: "Intermediária", c: "#f59e0b", d: "Funciona, mas deixa dinheiro na mesa. Melhorias rápidas com impacto imediato são possíveis." } : pct >= 30 ? { l: "Em desenvolvimento", c: "#f97316", d: "Vulnerabilidades significativas. Custos ocultos consomem margem. Diagnóstico urgente recomendado." } : { l: "Crítica", c: "#dc2626", d: "Riscos altos de multa e perda financeira. Análise emergencial necessária." };
+
+  return !show ? (
+    <div>
+      {qs.map((p, i) => (
+        <div key={i} style={{ marginBottom: 16, padding: "14px 16px", background: ans[i] >= 0 ? "#f0fdf4" : C.gray50, borderRadius: 10, border: `1px solid ${ans[i] >= 0 ? "#bbf7d0" : C.gray100}`, transition: "all 0.2s" }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.gray900, marginBottom: 10 }}><span style={{ color: C.magenta, marginRight: 6 }}>{i + 1}.</span>{p.q}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {p.opts.map((o, j) => (
+              <button key={j} onClick={() => { const n = [...ans]; n[i] = j; setAns(n); }}
+                style={{ padding: "7px 14px", borderRadius: 6, border: `1.5px solid ${ans[i] === j ? C.navy : C.gray100}`, background: ans[i] === j ? C.navy : C.white, color: ans[i] === j ? C.white : C.gray500, fontWeight: ans[i] === j ? 600 : 400, fontSize: 13, cursor: "pointer", transition: "all 0.15s" }}>
+                {o}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+      <button disabled={!done} onClick={() => setShow(true)} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: done ? C.navy : C.gray100, color: done ? C.white : C.gray300, fontSize: 15, fontWeight: 700, cursor: done ? "pointer" : "default", transition: "all 0.2s" }}>
+        {done ? "Ver diagnóstico" : `${ans.filter(r => r >= 0).length} de ${qs.length} respondidas`}
+      </button>
+    </div>
+  ) : (
+    <div style={{ textAlign: "center", padding: "20px 0" }}>
+      <div style={{ position: "relative", width: 160, height: 160, margin: "0 auto 20px" }}>
+        <svg viewBox="0 0 160 160" width="160" height="160">
+          <circle cx="80" cy="80" r="68" fill="none" stroke={C.gray100} strokeWidth="10" />
+          <circle cx="80" cy="80" r="68" fill="none" stroke={nivel.c} strokeWidth="10" strokeDasharray={`${(pct / 100) * 427} 427`} strokeLinecap="round" transform="rotate(-90 80 80)" style={{ transition: "stroke-dasharray 1s ease-out" }} />
+        </svg>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+          <div style={{ fontSize: 40, fontWeight: 800, color: nivel.c }}>{pct}</div>
+          <div style={{ fontSize: 12, color: C.gray300 }}>de 100</div>
+        </div>
+      </div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: nivel.c, marginBottom: 6 }}>{nivel.l}</div>
+      <p style={{ fontSize: 14, color: C.gray500, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 20px" }}>{nivel.d}</p>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+        <button onClick={() => { setShow(false); setAns(Array(qs.length).fill(-1)); }} style={{ padding: "10px 20px", borderRadius: 8, border: `1.5px solid ${C.gray200}`, background: "transparent", color: C.gray700, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Refazer</button>
+        <a href="https://wa.me/554730458200" target="_blank" style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: C.navy, color: C.white, fontWeight: 600, fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>Solicitar diagnóstico <ArrowRight size={14} /></a>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════
+function Dashboard() {
+  const [activeEtapa, setActiveEtapa] = useState(null);
+  const [activeSection, setActiveSection] = useState("panorama");
+  const navItems = [
+    { id: "panorama", label: "Panorama", icon: BarChart3 },
+    { id: "simulador", label: "Simulador", icon: Calculator },
+    { id: "setores", label: "Setores", icon: Building2 },
+    { id: "custos", label: "Custos Ocultos", icon: AlertTriangle },
+    { id: "jornada", label: "Jornada", icon: Route },
+    { id: "score", label: "Diagnóstico", icon: Target },
+  ];
+
+  useEffect(() => {
+    const sectionIds = navItems.map(n => n.id);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActiveSection(entry.target.id);
+      });
+    }, { rootMargin: "-40% 0px -40% 0px" });
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <div style={{ fontFamily: "'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif", color: C.gray900, background: C.white }}>
+      {/* NAV */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.gray100}`, padding: "0 24px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
+          <img src={LOGO_SVG} alt="Freitas Comex" style={{ height: 28, cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
+          <div style={{ display: "flex", gap: 2 }}>
+            {navItems.map(n => (
+              <button key={n.id} onClick={() => scrollTo(n.id)} style={{ color: activeSection === n.id ? C.navy : C.gray500, fontSize: 13, fontWeight: activeSection === n.id ? 700 : 500, textDecoration: "none", padding: "8px 12px", borderRadius: 6, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 5, background: activeSection === n.id ? C.navy08 : "transparent", border: "none", cursor: "pointer" }}
+                onMouseEnter={e => { if (activeSection !== n.id) { e.currentTarget.style.color = C.navy; e.currentTarget.style.background = C.navy08; }}}
+                onMouseLeave={e => { if (activeSection !== n.id) { e.currentTarget.style.color = C.gray500; e.currentTarget.style.background = "transparent"; }}}>
+                <n.icon size={14} />{n.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+      <div style={{ height: 56 }} /> {/* spacer for fixed nav */}
+
+      {/* ═══════════ LP: HERO ═══════════ */}
+      <div style={{ background: C.white, padding: "72px 24px 0", borderBottom: `1px solid ${C.gray100}` }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+
+          {/* Hero headline */}
+          <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center", marginBottom: 56 }}>
+            <div>
+              <Tag>Central de Inteligência Aduaneira</Tag>
+              <h1 style={{ fontSize: 38, fontWeight: 800, color: C.gray900, lineHeight: 1.15, margin: "0 0 16px", letterSpacing: -0.5 }}>
+                Os dados que faltavam para sua operação de comércio exterior.
+              </h1>
+              <p style={{ fontSize: 16, color: C.gray500, lineHeight: 1.7, margin: "0 0 28px" }}>
+                Este material reúne simulador de custos, diagnóstico de maturidade, mapeamento de riscos por etapa e análise setorial em um único painel interativo. Tudo o que um gestor de comex precisa para defender orçamento, reduzir custos e tomar decisão com dados.
+              </p>
+              <div style={{ display: "flex", gap: 12 }}>
+                <button onClick={() => scrollTo("simulador")} style={{ padding: "12px 24px", borderRadius: 8, border: "none", background: C.navy, color: C.white, fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                  <Calculator size={16} /> Abrir simulador
+                </button>
+                <button onClick={() => scrollTo("panorama")} style={{ padding: "12px 24px", borderRadius: 8, border: `1.5px solid ${C.gray200}`, background: "transparent", color: C.gray700, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                  Explorar dados
+                </button>
+              </div>
+            </div>
+
+            {/* Preview mockup */}
+            <div style={{ background: C.bg, borderRadius: 16, border: `1px solid ${C.gray100}`, padding: 20, position: "relative" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12 }}>Preview do painel</div>
+              {/* Mini chart preview */}
+              <div style={{ background: C.white, borderRadius: 10, padding: 16, marginBottom: 10, border: `1px solid ${C.gray100}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.gray500, marginBottom: 8 }}>Exportações vs Importações (US$ bi)</div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 48 }}>
+                  {[42, 55, 67, 68, 66, 70].map((h, i) => (
+                    <div key={i} style={{ flex: 1, display: "flex", gap: 2 }}>
+                      <div style={{ flex: 1, height: h * 0.7, background: C.navy, borderRadius: 2, opacity: 0.2 }} />
+                      <div style={{ flex: 1, height: h * 0.55, background: C.magenta, borderRadius: 2, opacity: 0.3 }} />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                  {["20", "21", "22", "23", "24", "25"].map(y => <span key={y} style={{ fontSize: 9, color: C.gray300 }}>{y}</span>)}
+                </div>
+              </div>
+              {/* Mini score preview */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <div style={{ background: C.white, borderRadius: 10, padding: 12, border: `1px solid ${C.gray100}` }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: C.magenta, textTransform: "uppercase", letterSpacing: 1 }}>Seu score</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: C.navy }}>73<span style={{ fontSize: 12, color: C.gray300 }}>/100</span></div>
+                  <div style={{ fontSize: 9, color: C.gray500 }}>Maturidade: Boa</div>
+                </div>
+                <div style={{ background: C.white, borderRadius: 10, padding: 12, border: `1px solid ${C.gray100}` }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: C.magenta, textTransform: "uppercase", letterSpacing: 1 }}>Landed cost</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: C.navy }}>+68<span style={{ fontSize: 12, color: C.gray300 }}>%</span></div>
+                  <div style={{ fontSize: 9, color: C.gray500 }}>sobre o valor FOB</div>
+                </div>
+              </div>
+              {/* Blur overlay hint */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 40, background: `linear-gradient(transparent, ${C.bg})`, borderRadius: "0 0 16px 16px" }} />
+            </div>
+          </div>
+
+          {/* What's inside */}
+          <div style={{ marginBottom: 56 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>O que você vai encontrar neste material</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+              {[
+                { icon: Calculator, title: "Simulador de Landed Cost", desc: "Calcule o custo total da importação com todos os tributos, linha a linha. Ajuste alíquotas e veja o impacto em tempo real.", target: "simulador", cta: "Simular agora" },
+                { icon: Target, title: "Diagnóstico de Maturidade", desc: "8 perguntas sobre seu processo. Receba um score de 0 a 100 com recomendações para o nível da sua operação.", target: "score", cta: "Avaliar operação" },
+                { icon: Route, title: "Jornada da Importação", desc: "10 etapas críticas com riscos, impacto financeiro e como a Freitas atua em cada ponto. Clique para explorar.", target: "jornada", cta: "Ver jornada" },
+                { icon: AlertTriangle, title: "Custos Ocultos", desc: "Demurrage, multas, câmbio, AFRMM. Os custos que não aparecem na planilha mas corroem sua margem.", target: "custos", cta: "Descobrir custos" },
+              ].map((f, i) => (
+                <div key={i} onClick={() => scrollTo(f.target)} style={{ padding: 20, borderRadius: 12, border: `1px solid ${C.gray100}`, cursor: "pointer", transition: "all 0.2s", background: C.white, display: "flex", flexDirection: "column" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = C.navy; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(44,45,101,0.08)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = C.gray100; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+                  <f.icon size={22} color={C.navy} style={{ marginBottom: 12 }} />
+                  <div style={{ fontSize: 14, fontWeight: 700, color: C.gray900, marginBottom: 6 }}>{f.title}</div>
+                  <div style={{ fontSize: 12, color: C.gray500, lineHeight: 1.55, flex: 1 }}>{f.desc}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.magenta, marginTop: 12, display: "flex", alignItems: "center", gap: 4 }}>{f.cta} <ArrowRight size={12} /></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Big numbers + Freitas credibility */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, paddingBottom: 56 }}>
+            {/* Numbers */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>Números do comércio exterior brasileiro</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {[
+                  { label: "Importações", value: 280.4, prefix: "US$ ", suffix: " bi", sub: "Acumulado 2025 (recorde)" },
+                  { label: "Empresas importadoras", value: 51.2, suffix: " mil", sub: "CNPJs ativos em 2024" },
+                  { label: "NCMs com II elevado", value: 1000, decimals: 0, prefix: "+", sub: "Resolução GECEX 2025/26" },
+                  { label: "Demurrage anual", value: 2.3, prefix: "US$ ", suffix: " bi", sub: "Custo Brasil 2024" },
+                ].map((n, i) => (
+                  <div key={i} style={{ padding: 16, background: C.bg, borderRadius: 10 }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: C.gray900 }}>
+                      <AnimNum end={n.value} prefix={n.prefix || ""} suffix={n.suffix || ""} decimals={n.decimals ?? 1} />
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: C.gray500, marginTop: 2, textTransform: "uppercase", letterSpacing: 0.5 }}>{n.label}</div>
+                    {n.sub && <div style={{ fontSize: 10, color: C.gray300, marginTop: 2 }}>{n.sub}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Freitas credibility */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>Sobre a Freitas Comex</div>
+              <p style={{ fontSize: 14, color: C.gray700, lineHeight: 1.7, margin: "0 0 16px" }}>
+                Mais de 30 anos de experiência em despacho aduaneiro, logística internacional e inteligência tributária. Atuação nos principais portos do Sul do Brasil com equipe própria e presencial.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {[
+                  { icon: MapPin, text: "Itajaí, Navegantes, Paranaguá, Santos" },
+                  { icon: Shield, text: "Classificação fiscal especializada" },
+                  { icon: TrendingUp, text: "Redução de 8 a 15% em custos/ano" },
+                  { icon: FileCheck, text: "Ex-tarifário e regimes especiais" },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: C.gray500, lineHeight: 1.5 }}>
+                    <item.icon size={14} color={C.magenta} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PANORAMA */}
+      <Sect id="panorama" bg={C.bg}>
+        <Tag>Base de Dados</Tag>
+        <H2 sub="Evolução das importações brasileiras de 2020 a 2025, principais origens e distribuição por estado.">Panorama do Comércio Exterior</H2>
+
+        <div style={{ background: C.white, borderRadius: 12, padding: 28, border: `1px solid ${C.gray100}`, marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: C.gray900, margin: 0 }}>Exportações vs Importações</h3>
+              <p style={{ fontSize: 13, color: C.gray500, margin: "4px 0 0" }}>US$ bilhões. Importações atingem recorde histórico em 2025. *Projeção anualizada.</p>
+            </div>
+            <div style={{ fontSize: 11, color: C.gray300, textAlign: "right" }}>Fonte: MDIC/Secex</div>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={balancaData}>
+              <defs>
+                <linearGradient id="gI" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.magenta} stopOpacity={0.12} /><stop offset="95%" stopColor={C.magenta} stopOpacity={0} /></linearGradient>
+                <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.navy} stopOpacity={0.08} /><stop offset="95%" stopColor={C.navy} stopOpacity={0} /></linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.gray100} />
+              <XAxis dataKey="ano" tick={{ fontSize: 12, fill: C.gray500 }} />
+              <YAxis tick={{ fontSize: 12, fill: C.gray500 }} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.gray100}`, boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
+              <Area type="monotone" dataKey="exp" name="Exportações" stroke={C.navy} fill="url(#gE)" strokeWidth={1.5} />
+              <Area type="monotone" dataKey="imp" name="Importações" stroke={C.magenta} fill="url(#gI)" strokeWidth={2} />
+              <Legend />
+            </AreaChart>
+          </ResponsiveContainer>
+          <FreitasNote>O déficit de 2025 (estimado em US$ 68 bi) reflete aumento de demanda por bens de capital. Mais concorrência nos portos, filas maiores e custos logísticos em alta. A Freitas monitora esses indicadores para antecipar gargalos nos embarques dos clientes.</FreitasNote>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, border: `1px solid ${C.gray100}` }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.gray900, margin: "0 0 4px" }}>Principais origens (2024)</h3>
+            <p style={{ fontSize: 12, color: C.gray300, margin: "0 0 16px" }}>China + EUA = 39% das importações brasileiras</p>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={paisesData} layout="vertical" margin={{ left: 70 }}>
+                <XAxis type="number" tick={{ fontSize: 11, fill: C.gray500 }} />
+                <YAxis type="category" dataKey="pais" tick={{ fontSize: 12, fill: C.gray500 }} width={65} />
+                <Tooltip contentStyle={{ borderRadius: 6, border: `1px solid ${C.gray100}` }} />
+                <Bar dataKey="valor" name="US$ bi" radius={[0, 4, 4, 0]}>
+                  {paisesData.map((_, i) => <Cell key={i} fill={i === 0 ? C.navy : i === 1 ? C.magenta : C.gray200} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <FreitasNote>Alta concentração em China e EUA significa risco geopolítico. A Freitas acompanha tarifas, restrições e rotas alternativas para cada origem.</FreitasNote>
+          </div>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, border: `1px solid ${C.gray100}` }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: C.gray900, margin: "0 0 4px" }}>Importação por estado (US$ bi)</h3>
+            <p style={{ fontSize: 12, color: C.gray300, margin: "0 0 16px" }}>SC e PR (base Freitas) = 19,4% do volume nacional</p>
+            {estadosData.map((e, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <div style={{ width: 24, fontSize: 12, fontWeight: 700, color: C.gray700 }}>{e.uf}</div>
+                <div style={{ flex: 1, height: 16, background: C.gray50, borderRadius: 8, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${(e.pct / 31) * 100}%`, background: ["SC", "PR"].includes(e.uf) ? C.magenta : C.navy, borderRadius: 8, opacity: ["SC", "PR"].includes(e.uf) ? 1 : 0.25, transition: "width 0.8s ease" }} />
+                </div>
+                <div style={{ width: 64, textAlign: "right", fontSize: 12, fontWeight: 600, color: C.gray700 }}>{e.valor} <span style={{ color: C.gray300, fontWeight: 400 }}>({e.pct}%)</span></div>
+              </div>
+            ))}
+            <FreitasNote>Com escritórios em Itajaí, Joinville, São Francisco do Sul e Curitiba, a Freitas cobre os estados que mais crescem em importação no Sul do Brasil.</FreitasNote>
+          </div>
+        </div>
+      </Sect>
+
+      {/* SIMULADOR */}
+      <Sect id="simulador">
+        <ToolHeader icon={Calculator} title="Simulador de Landed Cost" desc="O landed cost é o custo total da mercadoria importada até o estoque. Inclui FOB, frete, seguro e todos os tributos. Ajuste os parâmetros e veja o impacto de cada tributo no custo final." />
+        <div style={{ background: C.white, borderRadius: 12, padding: 32, border: `1px solid ${C.gray100}` }}>
+          <Simulador />
+        </div>
+      </Sect>
+
+      {/* SETORES */}
+      <Sect id="setores" bg={C.bg}>
+        <Tag>Análise Setorial</Tag>
+        <H2 sub="Score Comex: índice ponderado de volume, crescimento, complexidade regulatória, exposição tributária, potencial de ex-tarifário, risco documental, impacto de atraso e dependência de fornecedores.">Setores com maior potencial de otimização</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {setoresData.map((s, i) => (
+            <div key={i} style={{ background: C.white, borderRadius: 10, padding: 20, border: `1px solid ${C.gray100}`, position: "relative" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: C.navy08, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: C.navy }}>{s.score}</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: C.gray900 }}>{s.setor}</div>
+                  <div style={{ fontSize: 13, color: C.magenta, fontWeight: 600 }}>US$ {s.valor} bi</div>
+                </div>
+              </div>
+              <p style={{ fontSize: 13, color: C.gray500, lineHeight: 1.55, margin: 0 }}>{s.insight}</p>
+            </div>
+          ))}
+        </div>
+      </Sect>
+
+      {/* CUSTOS */}
+      <Sect id="custos">
+        <Tag>Riscos Financeiros</Tag>
+        <H2 sub="Custos que geralmente não aparecem na planilha de viabilidade, mas que podem representar 10 a 25% do valor da operação. Todos são evitáveis ou reduzíveis com planejamento.">Custos ocultos que corroem sua margem</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          {custosOcultos.map((c, i) => (
+            <div key={i} style={{ background: C.white, borderRadius: 10, padding: 22, border: `1px solid ${C.gray100}` }}>
+              <c.icon size={22} color={C.navy} style={{ marginBottom: 12 }} />
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.gray900, marginBottom: 2 }}>{c.nome}</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: C.magenta, marginBottom: 8 }}>{c.valor}</div>
+              <p style={{ fontSize: 13, color: C.gray500, lineHeight: 1.55, margin: 0 }}>{c.desc}</p>
+            </div>
+          ))}
+        </div>
+        <FreitasNote>
+          Somados, esses custos podem superar o próprio Imposto de Importação. A Freitas atua na prevenção de cada um: desembaraço nos terminais com menor tempo de liberação, documentação preparada para evitar canais restritivos, e operação integrada de ponta a ponta.
+        </FreitasNote>
+      </Sect>
+
+      {/* JORNADA */}
+      <Sect id="jornada" bg={C.bg}>
+        <Tag>Mapa Interativo</Tag>
+        <H2 sub="Selecione qualquer etapa para ver o risco principal, o impacto financeiro e como a Freitas atua naquele ponto. Cada uma das 10 etapas representa uma oportunidade real de economia.">Jornada da Importação</H2>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, marginBottom: 28 }}>
+          {jornadaEtapas.map((e, i) => {
+            const Icon = e.icon;
+            return (
+              <button key={i} onClick={() => setActiveEtapa(activeEtapa === i ? null : i)}
+                style={{ padding: "14px 8px", borderRadius: 10, border: `1.5px solid ${activeEtapa === i ? C.navy : C.gray100}`, background: activeEtapa === i ? C.navy : C.white, cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
+                <Icon size={18} color={activeEtapa === i ? C.white : C.gray500} style={{ marginBottom: 6 }} />
+                <div style={{ fontSize: 11, fontWeight: 700, color: activeEtapa === i ? C.white : C.gray700, lineHeight: 1.3 }}>{e.titulo}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: activeEtapa === i ? C.orange : e.cor, marginTop: 4 }}>{e.risco}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        {activeEtapa !== null ? (
+          <div style={{ background: C.white, borderRadius: 12, padding: 28, border: `1px solid ${C.gray100}`, animation: "fadeIn 0.25s ease" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+              {(() => { const Icon = jornadaEtapas[activeEtapa].icon; return <div style={{ width: 44, height: 44, borderRadius: 10, background: C.navy08, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={22} color={C.navy} /></div>; })()}
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: C.gray900 }}>{jornadaEtapas[activeEtapa].titulo}</div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: jornadaEtapas[activeEtapa].cor, textTransform: "uppercase", letterSpacing: 1 }}>Risco: {jornadaEtapas[activeEtapa].risco}</span>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div style={{ padding: 16, background: "#fef2f2", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#dc2626", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}><AlertTriangle size={12} />Problema</div>
+                <p style={{ fontSize: 13, color: C.gray700, lineHeight: 1.6, margin: 0 }}>{jornadaEtapas[activeEtapa].problema}</p>
+              </div>
+              <div style={{ padding: 16, background: C.orange20, borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#d97706", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}><DollarSign size={12} />Impacto Financeiro</div>
+                <p style={{ fontSize: 13, color: C.gray700, lineHeight: 1.6, margin: 0 }}>{jornadaEtapas[activeEtapa].impacto}</p>
+              </div>
+            </div>
+            <FreitasNote>{jornadaEtapas[activeEtapa].freitas}</FreitasNote>
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: 40, background: C.white, borderRadius: 12, border: `1.5px dashed ${C.gray200}` }}>
+            <ChevronUp size={28} color={C.gray300} style={{ marginBottom: 8 }} />
+            <div style={{ fontSize: 14, color: C.gray500 }}>Selecione uma etapa acima para ver riscos, impactos e atuação especializada</div>
+          </div>
+        )}
+      </Sect>
+
+      {/* SCORE */}
+      <Sect id="score">
+        <ToolHeader icon={Target} title="Diagnóstico de Maturidade em Comex" desc="Responda 8 perguntas sobre seu processo de importação e receba um score de 0 a 100 com recomendações específicas para o nível da sua operação." />
+        <div style={{ background: C.white, borderRadius: 12, padding: 32, border: `1px solid ${C.gray100}` }}>
+          <ScoreCalc />
+        </div>
+      </Sect>
+
+      {/* METHODOLOGY */}
+      <div style={{ padding: "24px", borderTop: `1px solid ${C.gray100}` }}>
+        <details style={{ maxWidth: 960, margin: "0 auto" }}>
+          <summary style={{ fontSize: 13, fontWeight: 600, color: C.gray300, cursor: "pointer", padding: "8px 0", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={14} />Metodologia, fontes e transparência</summary>
+          <div style={{ padding: "12px 0", fontSize: 13, color: C.gray500, lineHeight: 1.7 }}>
+            <p><strong>Fontes:</strong> MDIC/Secex (Comex Stat), FGV/IBRE, ABIQUIM, ABIMAQ, Receita Federal, FIESC. <strong>Score Comex:</strong> ponderação de 8 critérios: volume (20%), crescimento (15%), complexidade regulatória (15%), exposição tributária (10%), ex-tarifário (10%), risco documental (10%), impacto de atraso (10%), dependência de fornecedores (10%). <strong>Simulador:</strong> legislação vigente (TEC, TIPI, ICMS). Valores são estimativas para planejamento. <strong>Diagnóstico:</strong> auto-relato, indicativo de maturidade. Dados de 2025 são projeções anualizadas.</p>
+          </div>
+        </details>
+      </div>
+
+      {/* CTA */}
+      <div style={{ background: C.navy, padding: "64px 24px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+          <div>
+            <Tag>Próximo passo</Tag>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: C.white, margin: "0 0 12px", lineHeight: 1.3 }}>Solicite um diagnóstico gratuito da sua operação</h2>
+            <p style={{ fontSize: 15, color: C.gray300, lineHeight: 1.65, marginBottom: 24 }}>Consultores especializados analisam sua operação e identificam oportunidades de economia e eficiência.</p>
+            {["Revisão de NCMs e ex-tarifário", "Simulação personalizada de landed cost", "Análise de riscos aduaneiros", "Benchmark vs mercado", "Plano de ação com ROI estimado"].map((s, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <CheckCircle2 size={16} color={C.orange} />
+                <span style={{ fontSize: 14, color: C.gray200 }}>{s}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: C.white, borderRadius: 16, padding: 32 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: C.gray900, marginBottom: 4 }}>Fale com um especialista</div>
+            <p style={{ fontSize: 13, color: C.gray500, marginBottom: 20 }}>Retorno em até 24h úteis.</p>
+            {["Nome completo", "E-mail corporativo", "Empresa", "Cargo (opcional)", "Telefone (opcional)"].map((f, i) => (
+              <input key={i} placeholder={f} style={{ width: "100%", padding: "11px 14px", borderRadius: 8, border: `1px solid ${C.gray100}`, fontSize: 14, marginBottom: 8, outline: "none", boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = C.navy} onBlur={e => e.target.style.borderColor = C.gray100} />
+            ))}
+            <button style={{ width: "100%", padding: "13px", borderRadius: 8, border: "none", background: C.navy, color: C.white, fontSize: 15, fontWeight: 700, cursor: "pointer", marginTop: 4 }}>Solicitar diagnóstico</button>
+            <p style={{ fontSize: 11, color: C.gray300, textAlign: "center", marginTop: 8 }}>Dados tratados conforme LGPD.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ padding: "28px 24px", textAlign: "center", borderTop: `1px solid ${C.gray100}` }}>
+        <img src={LOGO_SVG} alt="Freitas" style={{ height: 24, marginBottom: 10, opacity: 0.7 }} />
+        <div style={{ fontSize: 12, color: C.gray300, lineHeight: 1.6 }}>
+          Itajaí (SC) · freitascomex.com.br · (47) 3045-8200
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
+        * { -webkit-font-smoothing:antialiased; box-sizing:border-box }
+        html { scroll-behavior:smooth }
+        input[type=range] { height:4px; cursor:pointer }
+        input[type=range]::-webkit-slider-thumb { cursor:grab }
+        ::-webkit-scrollbar { height:3px }
+        ::-webkit-scrollbar-thumb { background:${C.gray200}; border-radius:2px }
+        a:focus-visible,button:focus-visible { outline:2px solid ${C.navy}; outline-offset:2px }
+        @media (max-width:768px) {
+          h1 { font-size:28px!important }
+          [style*="gridTemplateColumns: repeat(4"] { grid-template-columns:repeat(2,1fr)!important }
+          [style*="gridTemplateColumns: repeat(5"] { grid-template-columns:repeat(2,1fr)!important }
+          [style*="gridTemplateColumns: repeat(3"] { grid-template-columns:1fr!important }
+          [style*="gridTemplateColumns: 1fr 1fr"] { grid-template-columns:1fr!important }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function ChevronUp(props) {
+  return <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke={props.color || "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>;
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(Dashboard));
+    </script>
 </body>
 </html>

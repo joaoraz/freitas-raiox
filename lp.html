@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Inteligência Aduaneira | Freitas Comex</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif; }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide-react/0.383.0/lucide-react.min.js"></script>
+    <script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
+const { Calculator, BarChart3, Route, AlertTriangle, Target, ChevronRight, ChevronDown, Clock, DollarSign, Shield, TrendingUp, MapPin, Building2, FileCheck, Ship, Package, Truck, Search, BookOpen, Phone, ArrowRight, CheckCircle2, XCircle, Circle, Minus, ExternalLink, Menu, X, Lock, Users, Award, Zap } = lucideReact;
+
+
+const LOGO_SVG = "data:image/png;base64,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";
+const LOGO_WHITE = "data:image/png;base64,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";
+
+const C = {
+  navy: "#2c2d65", magenta: "#ce0f69", orange: "#ff9e1b",
+  navy08: "#f4f4f9", magenta20: "#fce8f1", orange20: "#fff4e0",
+  white: "#FFFFFF", bg: "#FAFAFE",
+  gray50: "#f8f8fc", gray100: "#ededf4", gray200: "#d5d5e0",
+  gray300: "#b0b0c4", gray500: "#6e6e8a", gray700: "#3a3a54", gray900: "#1a1a2e",
+};
+
+function AnimNum({ end, prefix = "", suffix = "", duration = 2000, decimals = 1 }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true;
+        const s = performance.now();
+        const go = (n) => { const p = Math.min((n - s) / duration, 1); setVal((1 - Math.pow(1 - p, 3)) * end); if (p < 1) requestAnimationFrame(go); };
+        requestAnimationFrame(go);
+      }
+    }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [end, duration]);
+  return <span ref={ref}>{prefix}{val.toFixed(decimals)}{suffix}</span>;
+}
+
+function LandingPage() {
+  const [form, setForm] = useState({ nome: "", email: "", empresa: "", cargo: "" });
+  const [enviado, setEnviado] = useState(false);
+  const formRef = useRef(null);
+
+  const scrollToForm = () => {
+    if (formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleSubmit = () => {
+    if (!form.nome || !form.email || !form.empresa) return;
+    setEnviado(true);
+  };
+
+  const Field = ({ name, placeholder, required }) => (
+    <input
+      placeholder={placeholder + (required ? " *" : "")}
+      value={form[name]}
+      onChange={e => setForm({ ...form, [name]: e.target.value })}
+      style={{ width: "100%", padding: "13px 16px", borderRadius: 8, border: `1.5px solid ${C.gray100}`, fontSize: 14, outline: "none", boxSizing: "border-box", transition: "border 0.2s", fontFamily: "inherit" }}
+      onFocus={e => e.target.style.borderColor = C.navy}
+      onBlur={e => e.target.style.borderColor = C.gray100}
+    />
+  );
+
+  return (
+    <div style={{ fontFamily: "'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif", color: C.gray900, background: C.white, minHeight: "100vh" }}>
+
+      {/* NAV */}
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${C.gray100}`, padding: "0 24px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56 }}>
+          <img src={LOGO_SVG} alt="Freitas Comex" style={{ height: 28 }} />
+          <button onClick={scrollToForm} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: C.navy, color: C.white, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Acessar material
+          </button>
+        </div>
+      </nav>
+      <div style={{ height: 56 }} />
+
+      {/* ═══════════ HERO ═══════════ */}
+      <div style={{ padding: "72px 24px 0", background: C.white }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.6, textTransform: "uppercase", color: C.magenta, marginBottom: 12 }}>
+              Material interativo gratuito
+            </div>
+            <h1 style={{ fontSize: 36, fontWeight: 800, color: C.gray900, lineHeight: 1.15, margin: "0 0 16px", letterSpacing: -0.5 }}>
+              Central de Inteligência<br />Aduaneira
+            </h1>
+            <p style={{ fontSize: 16, color: C.gray500, lineHeight: 1.7, margin: "0 0 24px" }}>
+              Simulador de custos, diagnóstico de operação, mapa de riscos por etapa e análise setorial. Tudo em um painel interativo feito para quem toma decisão em comércio exterior.
+            </p>
+            <button onClick={scrollToForm} style={{ padding: "14px 28px", borderRadius: 8, border: "none", background: C.navy, color: C.white, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+              Quero acessar <ArrowRight size={16} />
+            </button>
+            <p style={{ fontSize: 12, color: C.gray300, marginTop: 10 }}>Acesso gratuito. Sem compromisso.</p>
+          </div>
+
+          {/* Preview mockup */}
+          <div style={{ background: C.bg, borderRadius: 16, border: `1px solid ${C.gray100}`, padding: 20, position: "relative", overflow: "hidden" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12 }}>Preview do painel</div>
+            <div style={{ background: C.white, borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${C.gray100}` }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.gray500, marginBottom: 8 }}>Exportações vs Importações (US$ bi)</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 48 }}>
+                {[42, 55, 67, 68, 66, 70].map((h, i) => (
+                  <div key={i} style={{ flex: 1, display: "flex", gap: 2 }}>
+                    <div style={{ flex: 1, height: h * 0.7, background: C.navy, borderRadius: 2, opacity: 0.2 }} />
+                    <div style={{ flex: 1, height: h * 0.55, background: C.magenta, borderRadius: 2, opacity: 0.3 }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ background: C.white, borderRadius: 10, padding: 12, border: `1px solid ${C.gray100}` }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: C.magenta, textTransform: "uppercase", letterSpacing: 1 }}>Score comex</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.navy }}>73<span style={{ fontSize: 11, color: C.gray300 }}>/100</span></div>
+              </div>
+              <div style={{ background: C.white, borderRadius: 10, padding: 12, border: `1px solid ${C.gray100}` }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: C.magenta, textTransform: "uppercase", letterSpacing: 1 }}>Landed cost</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.navy }}>+68<span style={{ fontSize: 11, color: C.gray300 }}>%</span></div>
+              </div>
+            </div>
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 50, background: `linear-gradient(transparent, ${C.bg})`, display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: C.navy }}>
+                <Lock size={12} /> Preencha para acessar
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════ O QUE ESTÁ DENTRO ═══════════ */}
+      <div style={{ padding: "64px 24px", background: C.white }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>O que você vai encontrar</div>
+            <h2 style={{ fontSize: 26, fontWeight: 700, color: C.gray900, margin: 0 }}>Ferramentas interativas para decisão em comex</h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+            {[
+              { icon: Calculator, title: "Simulador de Landed Cost", desc: "Calcule o custo total da importação com todos os tributos. Ajuste alíquotas e veja o impacto em tempo real." },
+              { icon: Target, title: "Diagnóstico de Maturidade", desc: "8 perguntas sobre seu processo. Receba um score de 0 a 100 e saiba onde sua operação pode melhorar." },
+              { icon: Route, title: "Jornada da Importação", desc: "10 etapas da importação com riscos, impacto financeiro e onde a assessoria especializada faz diferença." },
+              { icon: AlertTriangle, title: "Custos Ocultos", desc: "Demurrage, multas, câmbio, AFRMM. Quanto sua operação perde sem você perceber." },
+            ].map((f, i) => (
+              <div key={i} style={{ padding: 22, borderRadius: 12, border: `1px solid ${C.gray100}`, background: C.white }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: C.navy08, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                  <f.icon size={20} color={C.navy} />
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.gray900, marginBottom: 6 }}>{f.title}</div>
+                <div style={{ fontSize: 13, color: C.gray500, lineHeight: 1.6 }}>{f.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 16 }}>
+            {[
+              { icon: BarChart3, title: "Base de dados atualizada", desc: "Balança comercial, origens, estados e setores com dados de 2024/2025." },
+              { icon: Shield, title: "Análise setorial com score", desc: "7 setores ranqueados por complexidade, oportunidade e risco." },
+              { icon: FileCheck, title: "Metodologia transparente", desc: "Fontes públicas, critérios documentados e limitações declaradas." },
+            ].map((f, i) => (
+              <div key={i} style={{ padding: 22, borderRadius: 12, border: `1px solid ${C.gray100}`, background: C.white }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: C.navy08, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                  <f.icon size={20} color={C.navy} />
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.gray900, marginBottom: 6 }}>{f.title}</div>
+                <div style={{ fontSize: 13, color: C.gray500, lineHeight: 1.6 }}>{f.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════ NÚMEROS ═══════════ */}
+      <div style={{ padding: "56px 24px", background: C.bg, borderTop: `1px solid ${C.gray100}`, borderBottom: `1px solid ${C.gray100}` }}>
+        <div style={{ maxWidth: 960, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.gray300, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>Contexto de mercado</div>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: C.gray900, margin: 0 }}>Os números que justificam este material</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+            {[
+              { label: "Importações", value: 280.4, prefix: "US$ ", suffix: " bi", sub: "Recorde em 2025" },
+              { label: "Empresas importadoras", value: 51.2, suffix: " mil", sub: "CNPJs ativos em 2024" },
+              { label: "NCMs com II elevado", value: 1000, decimals: 0, prefix: "+", sub: "Resolução GECEX 2025/26" },
+              { label: "Custo com demurrage", value: 2.3, prefix: "US$ ", suffix: " bi", sub: "Perdas anuais no Brasil" },
+            ].map((n, i) => (
+              <div key={i} style={{ textAlign: "center", padding: 20, background: C.white, borderRadius: 12, border: `1px solid ${C.gray100}` }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: C.navy }}>
+                  <AnimNum end={n.value} prefix={n.prefix || ""} suffix={n.suffix || ""} decimals={n.decimals ?? 1} />
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.gray500, marginTop: 2, textTransform: "uppercase", letterSpacing: 0.5 }}>{n.label}</div>
+                <div style={{ fontSize: 11, color: C.gray300, marginTop: 2 }}>{n.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════ FORMULÁRIO ═══════════ */}
+      <div style={{ padding: "64px 24px", background: C.white }} ref={formRef}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.magenta, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>Acesso gratuito</div>
+            <h2 style={{ fontSize: 26, fontWeight: 700, color: C.gray900, margin: "0 0 16px", lineHeight: 1.3 }}>Preencha para acessar a Central de Inteligência Aduaneira</h2>
+            <p style={{ fontSize: 14, color: C.gray500, lineHeight: 1.7, marginBottom: 24 }}>
+              Você terá acesso imediato ao painel completo com simulador, diagnóstico e toda a base de dados. Sem custo.
+            </p>
+            {[
+              { icon: CheckCircle2, text: "Simulador de landed cost com todos os tributos" },
+              { icon: CheckCircle2, text: "Diagnóstico de maturidade com score e recomendações" },
+              { icon: CheckCircle2, text: "Mapa da jornada com riscos e oportunidades" },
+              { icon: CheckCircle2, text: "Base de dados setorial atualizada" },
+              { icon: CheckCircle2, text: "Análise de custos ocultos da importação" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <item.icon size={16} color={C.magenta} />
+                <span style={{ fontSize: 13, color: C.gray700 }}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {!enviado ? (
+            <div style={{ background: C.bg, borderRadius: 16, padding: 32, border: `1px solid ${C.gray100}` }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: C.gray900, marginBottom: 4 }}>Acesse agora</div>
+              <p style={{ fontSize: 13, color: C.gray500, marginBottom: 20 }}>Preencha seus dados para liberar o acesso.</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <Field name="nome" placeholder="Seu nome" required />
+                <Field name="email" placeholder="E-mail corporativo" required />
+                <Field name="empresa" placeholder="Empresa" required />
+                <Field name="cargo" placeholder="Cargo (opcional)" />
+              </div>
+              <button onClick={handleSubmit} style={{ width: "100%", padding: "14px", borderRadius: 8, border: "none", background: (!form.nome || !form.email || !form.empresa) ? C.gray200 : C.navy, color: C.white, fontSize: 15, fontWeight: 700, cursor: (!form.nome || !form.email || !form.empresa) ? "default" : "pointer", marginTop: 16, transition: "background 0.2s" }}>
+                Acessar material
+              </button>
+              <p style={{ fontSize: 11, color: C.gray300, textAlign: "center", marginTop: 10 }}>Dados tratados conforme LGPD. Sem spam.</p>
+            </div>
+          ) : (
+            <div style={{ background: C.bg, borderRadius: 16, padding: 32, border: `1px solid ${C.gray100}`, textAlign: "center" }}>
+              <CheckCircle2 size={48} color={C.magenta} style={{ marginBottom: 16 }} />
+              <div style={{ fontSize: 20, fontWeight: 700, color: C.gray900, marginBottom: 8 }}>Acesso liberado!</div>
+              <p style={{ fontSize: 14, color: C.gray500, marginBottom: 20, lineHeight: 1.6 }}>
+                Obrigado, {form.nome.split(" ")[0]}. Sua Central de Inteligência Aduaneira está pronta.
+              </p>
+              <a href="#" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "14px 28px", borderRadius: 8, background: C.navy, color: C.white, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
+                Abrir material <ArrowRight size={16} />
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════ SOBRE A FREITAS ═══════════ */}
+      <div style={{ padding: "48px 24px", background: C.bg, borderTop: `1px solid ${C.gray100}` }}>
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <img src={LOGO_SVG} alt="Freitas" style={{ height: 24, marginBottom: 16, opacity: 0.6 }} />
+          <p style={{ fontSize: 14, color: C.gray500, lineHeight: 1.7, margin: "0 0 16px" }}>
+            Mais de 30 anos de experiência em despacho aduaneiro, logística internacional e inteligência tributária. Atuação nos principais portos do Sul do Brasil com equipe própria e presencial.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: C.gray500 }}>
+                <MapPin size={12} color={C.magenta} /> Itajaí (SC)
+              </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ padding: "20px 24px", textAlign: "center", borderTop: `1px solid ${C.gray100}` }}>
+        <div style={{ fontSize: 11, color: C.gray300 }}>
+          Itajaí (SC) · freitascomex.com.br · (47) 3045-8200
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
+        * { -webkit-font-smoothing:antialiased; box-sizing:border-box }
+        html { scroll-behavior:smooth }
+        input::placeholder { color: ${C.gray300} }
+        @media (max-width:768px) {
+          h1 { font-size:28px!important }
+          [style*="gridTemplateColumns: repeat(4"] { grid-template-columns:repeat(2,1fr)!important }
+          [style*="gridTemplateColumns: repeat(3"] { grid-template-columns:1fr!important }
+          [style*="gridTemplateColumns: 1.1fr"] { grid-template-columns:1fr!important }
+          [style*="gridTemplateColumns: 1fr 1fr"] { grid-template-columns:1fr!important }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(LandingPage));
+    </script>
+</body>
+</html>
