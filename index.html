@@ -10,51 +10,60 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif; }
         html { scroll-behavior: smooth; }
+        #loading { display:flex; align-items:center; justify-content:center; height:100vh; color:#6e6e8a; font-size:14px; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.26.9/babel.min.js"></script>
-    <script src="https://unpkg.com/react-is@18.3.1/umd/react-is.production.min.js"></script>
-    <script src="https://unpkg.com/recharts@2.15.3/umd/Recharts.min.js"></script>
+    <div id="root"><div id="loading">Carregando painel...</div></div>
+
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react-is@18.2.0/umd/react-is.production.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
+
+    <script>
+    window.onerror = function(msg, url, line, col, err) {
+      document.getElementById('root').innerHTML = '<div style="padding:40px;color:#dc2626;font-size:14px;"><b>Erro ao carregar:</b><br>' + msg + '<br>Linha: ' + line + '</div>';
+    };
+    </script>
+
     <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
 const { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } = Recharts;
 
 
-// Icon components (inline SVG, no CDN dependency)
-const Icon = ({d, size=24, color="currentColor", style={}}) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,...style}}>
-    <path d={d}/>
-  </svg>
-);
-const Calculator = (p) => <Icon {...p} d="M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM8 6h0M16 6h0M8 10h0M16 10h0M8 14h0M16 14h0M8 18h0M16 18h0M12 6h0M12 10h0M12 14h0M12 18h0"/>;
-const BarChart3 = (p) => <Icon {...p} d="M3 3v18h18M7 17V13M11 17V9M15 17V5M19 17V7"/>;
-const Route = (p) => <Icon {...p} d="M3 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0zM17 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0zM7 17h3a4 4 0 0 0 4-4V11a4 4 0 0 1 4-4h1"/>;
-const AlertTriangle = (p) => <Icon {...p} d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>;
-const Target = (p) => <Icon {...p} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>;
-const ArrowRight = (p) => <Icon {...p} d="M5 12h14M12 5l7 7-7 7"/>;
-const CheckCircle2 = (p) => <Icon {...p} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM9 12l2 2 4-4"/>;
-const Shield = (p) => <Icon {...p} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>;
-const TrendingUp = (p) => <Icon {...p} d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/>;
-const MapPin = (p) => <Icon {...p} d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>;
-const Building2 = (p) => <Icon {...p} d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18zM2 22h20M6 12h.01M10 12h.01M14 12h.01M6 16h.01M10 16h.01M14 16h.01M6 8h.01M10 8h.01M14 8h.01"/>;
-const FileCheck = (p) => <Icon {...p} d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 15l2 2 4-4"/>;
-const Ship = (p) => <Icon {...p} d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M4 17l1-5h14l1 5M12 2v5M7 7h10"/>;
-const Package = (p) => <Icon {...p} d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/>;
-const Truck = (p) => <Icon {...p} d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>;
-const Search = (p) => <Icon {...p} d="M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM21 21l-4.35-4.35"/>;
-const BookOpen = (p) => <Icon {...p} d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>;
-const DollarSign = (p) => <Icon {...p} d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>;
-const Clock = (p) => <Icon {...p} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2"/>;
-const XCircle = (p) => <Icon {...p} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM15 9l-6 6M9 9l6 6"/>;
-const Lock = (p) => <Icon {...p} d="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM7 11V7a5 5 0 0 1 10 0v4"/>;
-const Users = (p) => <Icon {...p} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>;
-const Award = (p) => <Icon {...p} d="M12 2a7 7 0 0 0-4.6 12.3L6 22l6-3 6 3-1.4-7.7A7 7 0 0 0 12 2z"/>;
-const Zap = (p) => <Icon {...p} d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>;
-const ChevronDown = (p) => <Icon {...p} d="M6 9l6 6 6-6"/>;
+function SvgIcon({paths, size=24, color="currentColor", style={}}) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,...style}}>
+      {paths.map((d,i) => <path key={i} d={d}/>)}
+    </svg>
+  );
+}
+function Calculator(p) { return <SvgIcon {...p} paths={["M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z","M8 6h.01","M16 6h.01","M8 10h.01","M16 10h.01","M8 14h.01","M16 14h.01"]}/>; }
+function BarChart3(p) { return <SvgIcon {...p} paths={["M3 3v18h18","M7 17V13","M11 17V9","M15 17V5","M19 17V7"]}/>; }
+function Route(p) { return <SvgIcon {...p} paths={["M3 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0z","M17 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0z","M7 17h3a4 4 0 0 0 4-4V11a4 4 0 0 1 4-4h1"]}/>; }
+function AlertTriangle(p) { return <SvgIcon {...p} paths={["M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z","M12 9v4","M12 17h.01"]}/>; }
+function Target(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z","M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"]}/>; }
+function ArrowRight(p) { return <SvgIcon {...p} paths={["M5 12h14","M12 5l7 7-7 7"]}/>; }
+function CheckCircle2(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M9 12l2 2 4-4"]}/>; }
+function Shield(p) { return <SvgIcon {...p} paths={["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"]}/>; }
+function TrendingUp(p) { return <SvgIcon {...p} paths={["M23 6l-9.5 9.5-5-5L1 18","M17 6h6v6"]}/>; }
+function MapPin(p) { return <SvgIcon {...p} paths={["M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z","M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"]}/>; }
+function Building2(p) { return <SvgIcon {...p} paths={["M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18z","M2 22h20","M6 12h.01","M10 12h.01","M14 12h.01"]}/>; }
+function FileCheck(p) { return <SvgIcon {...p} paths={["M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z","M14 2v6h6","M9 15l2 2 4-4"]}/>; }
+function Ship(p) { return <SvgIcon {...p} paths={["M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.5 0 2.5 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1","M4 17l1-5h14l1 5","M12 2v5","M7 7h10"]}/>; }
+function Package(p) { return <SvgIcon {...p} paths={["M16.5 9.4l-9-5.19","M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z","M3.27 6.96L12 12.01l8.73-5.05","M12 22.08V12"]}/>; }
+function Truck(p) { return <SvgIcon {...p} paths={["M1 3h15v13H1z","M16 8h4l3 3v5h-7V8z","M5.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z","M18.5 18.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"]}/>; }
+function Search(p) { return <SvgIcon {...p} paths={["M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z","M21 21l-4.35-4.35"]}/>; }
+function BookOpen(p) { return <SvgIcon {...p} paths={["M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z","M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"]}/>; }
+function DollarSign(p) { return <SvgIcon {...p} paths={["M12 1v22","M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"]}/>; }
+function Clock(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6v6l4 2"]}/>; }
+function XCircle(p) { return <SvgIcon {...p} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M15 9l-6 6","M9 9l6 6"]}/>; }
+function Lock(p) { return <SvgIcon {...p} paths={["M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z","M7 11V7a5 5 0 0 1 10 0v4"]}/>; }
+function Users(p) { return <SvgIcon {...p} paths={["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2","M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z","M23 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75"]}/>; }
+function Award(p) { return <SvgIcon {...p} paths={["M12 2a7 7 0 0 0-4.6 12.3L6 22l6-3 6 3-1.4-7.7A7 7 0 0 0 12 2z"]}/>; }
+function Zap(p) { return <SvgIcon {...p} paths={["M13 2L3 14h9l-1 8 10-12h-9l1-8z"]}/>; }
 
 
 
@@ -475,7 +484,7 @@ function Dashboard() {
                 ].map((n, i) => (
                   <div key={i} style={{ padding: 16, background: C.bg, borderRadius: 10 }}>
                     <div style={{ fontSize: 24, fontWeight: 800, color: C.gray900 }}>
-                      <AnimNum end={n.value} prefix={n.prefix || ""} suffix={n.suffix || ""} decimals={n.decimals ?? 1} />
+                      <AnimNum end={n.value} prefix={n.prefix || ""} suffix={n.suffix || ""} decimals={n.decimals || 1} />
                     </div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: C.gray500, marginTop: 2, textTransform: "uppercase", letterSpacing: 0.5 }}>{n.label}</div>
                     {n.sub && <div style={{ fontSize: 10, color: C.gray300, marginTop: 2 }}>{n.sub}</div>}
@@ -746,8 +755,7 @@ function ChevronUp(props) {
 }
 
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(Dashboard));
+ReactDOM.createRoot(document.getElementById('root')).render(<Dashboard />);
     </script>
 </body>
 </html>
