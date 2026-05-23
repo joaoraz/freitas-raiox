@@ -7,28 +7,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Source Sans Pro', 'Segoe UI', -apple-system, sans-serif; }
-        html { scroll-behavior: smooth; }
-        #loading { display:flex; align-items:center; justify-content:center; height:100vh; color:#6e6e8a; font-size:14px; }
-        input::placeholder { color: #b0b0c4; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Source Sans Pro','Segoe UI',-apple-system,sans-serif}
+        html{scroll-behavior:smooth}
+        #loading{display:flex;align-items:center;justify-content:center;height:100vh;color:#6e6e8a;font-size:14px}
+        input::placeholder{color:#b0b0c4}
     </style>
 </head>
 <body>
     <div id="root"><div id="loading">Carregando...</div></div>
 
-    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-is@18.2.0/umd/react-is.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/recharts@2.5.0/umd/Recharts.min.js"></script>
+    <script>
+    if(typeof Recharts==='undefined'){
+      // Fallback: try unpkg
+      var s=document.createElement('script');
+      s.src='https://unpkg.com/recharts@2.5.0/umd/Recharts.min.js';
+      document.head.appendChild(s);
+    }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.9/babel.min.js"></script>
 
     <script>
-    window.onerror = function(msg) {
-      document.getElementById('root').innerHTML = '<div style="padding:40px;color:#dc2626;font-size:13px"><b>Erro:</b> ' + msg + '</div>';
-    };
+    window.onerror=function(m){document.getElementById('root').innerHTML='<div style="padding:40px;color:#dc2626;font-size:13px"><b>Erro:</b> '+m+'</div>'};
     </script>
 
     <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
+const { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } = Recharts;
 
 
 function SvgIcon({paths, size=24, color="currentColor", style={}}) {
@@ -524,23 +533,21 @@ function Dashboard() {
             </div>
             <div style={{ fontSize: 11, color: C.gray300, textAlign: "right" }}>Fonte: MDIC/Secex</div>
           </div>
-          <div style={{height:220}}>
-              <div style={{display:"flex",alignItems:"flex-end",gap:8,height:180,padding:"0 4px"}}>
-                {balancaData.map((d,i) => (
-                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                    <div style={{display:"flex",gap:2,alignItems:"flex-end",width:"100%",height:160}}>
-                      <div style={{flex:1,background:C.navy,borderRadius:"3px 3px 0 0",opacity:0.7,height:`${(d.exp/350)*100}%`,transition:"height 0.8s ease"}}/>
-                      <div style={{flex:1,background:C.magenta,borderRadius:"3px 3px 0 0",opacity:0.7,height:`${(d.imp/350)*100}%`,transition:"height 0.8s ease"}}/>
-                    </div>
-                    <span style={{fontSize:11,color:C.gray500}}>{d.ano}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{display:"flex",gap:16,justifyContent:"center",marginTop:12}}>
-                <div style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:C.gray500}}><div style={{width:10,height:10,borderRadius:2,background:C.navy,opacity:0.7}}/> Exportações</div>
-                <div style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:C.gray500}}><div style={{width:10,height:10,borderRadius:2,background:C.magenta,opacity:0.7}}/> Importações</div>
-              </div>
-            </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={balancaData}>
+              <defs>
+                <linearGradient id="gI" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.magenta} stopOpacity={0.12} /><stop offset="95%" stopColor={C.magenta} stopOpacity={0} /></linearGradient>
+                <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.navy} stopOpacity={0.08} /><stop offset="95%" stopColor={C.navy} stopOpacity={0} /></linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.gray100} />
+              <XAxis dataKey="ano" tick={{ fontSize: 12, fill: C.gray500 }} />
+              <YAxis tick={{ fontSize: 12, fill: C.gray500 }} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.gray100}`, boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }} />
+              <Area type="monotone" dataKey="exp" name="Exportações" stroke={C.navy} fill="url(#gE)" strokeWidth={1.5} />
+              <Area type="monotone" dataKey="imp" name="Importações" stroke={C.magenta} fill="url(#gI)" strokeWidth={2} />
+              <Legend />
+            </AreaChart>
+          </ResponsiveContainer>
           <FreitasNote>O déficit de 2025 (estimado em US$ 68 bi) reflete aumento de demanda por bens de capital. Mais concorrência nos portos, filas maiores e custos logísticos em alta. A Freitas monitora esses indicadores para antecipar gargalos nos embarques dos clientes.</FreitasNote>
         </div>
 
@@ -548,17 +555,16 @@ function Dashboard() {
           <div style={{ background: C.white, borderRadius: 12, padding: 24, border: `1px solid ${C.gray100}` }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, color: C.gray900, margin: "0 0 4px" }}>Principais origens (2024)</h3>
             <p style={{ fontSize: 12, color: C.gray300, margin: "0 0 16px" }}>China + EUA = 39% das importações brasileiras</p>
-            <div>
-              {paisesData.map((p,i) => (
-                <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                  <div style={{width:70,fontSize:12,color:C.gray500,textAlign:"right"}}>{p.pais}</div>
-                  <div style={{flex:1,height:18,background:C.gray50,borderRadius:6,overflow:"hidden"}}>
-                    <div style={{height:"100%",width:`${(p.valor/65)*100}%`,background:i===0?C.navy:i===1?C.magenta:C.gray200,borderRadius:6,transition:"width 0.8s ease"}}/>
-                  </div>
-                  <div style={{width:45,fontSize:12,fontWeight:600,color:C.gray700}}>{p.valor}</div>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={paisesData} layout="vertical" margin={{ left: 70 }}>
+                <XAxis type="number" tick={{ fontSize: 11, fill: C.gray500 }} />
+                <YAxis type="category" dataKey="pais" tick={{ fontSize: 12, fill: C.gray500 }} width={65} />
+                <Tooltip contentStyle={{ borderRadius: 6, border: `1px solid ${C.gray100}` }} />
+                <Bar dataKey="valor" name="US$ bi" radius={[0, 4, 4, 0]}>
+                  {paisesData.map((_, i) => <Cell key={i} fill={i === 0 ? C.navy : i === 1 ? C.magenta : C.gray200} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
             <FreitasNote>Alta concentração em China e EUA significa risco geopolítico. A Freitas acompanha tarifas, restrições e rotas alternativas para cada origem.</FreitasNote>
           </div>
           <div style={{ background: C.white, borderRadius: 12, padding: 24, border: `1px solid ${C.gray100}` }}>
@@ -753,7 +759,7 @@ function ChevronUp(props) {
 }
 
 
-ReactDOM.createRoot(document.getElementById('root')).render(<Dashboard />);
+ReactDOM.createRoot(document.getElementById('root')).render(<Dashboard/>);
     </script>
 </body>
 </html>
