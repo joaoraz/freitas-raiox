@@ -321,9 +321,20 @@
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (j) {
         dl('raiox_lead', { raiox_identificador: j.identificador || '' });
-        botao.textContent = PAGINA === 'lp' ? 'Pronto! Enviamos por e-mail.' : 'Recebemos, obrigado!';
         var av = botao.parentNode.querySelector('[data-raiox="aviso"]');
         if (av) av.textContent = '';
+
+        // Na LP a pessoa entra no material na hora, ainda na mesma sessão. O token
+        // vem na resposta e fica guardado, então ela segue identificada lá dentro
+        // sem link especial no e-mail e sem digitar o e-mail de novo.
+        if (PAGINA === 'lp') {
+          if (j.token) { try { localStorage.setItem(CHAVE_TOKEN, j.token); } catch (e) {} }
+          botao.textContent = 'Acesso liberado, abrindo...';
+          setTimeout(function () { location.href = '/'; }, 900);
+          return;
+        }
+
+        botao.textContent = 'Recebemos, obrigado!';
       })
       .catch(function (e) {
         botao.disabled = false;

@@ -157,11 +157,12 @@ export default async function handler(req, res) {
     };
     for (const k in DIAG) if (d[k] !== undefined && d[k] !== null && d[k] !== '') payload[DIAG[k]] = String(d[k]);
 
+    let tokenNovo = null;
     if (origem === 'lp') {
-      // a tag é o gatilho da automação que manda o e-mail com o link do material
       payload.tags.push(TAG_SEGMENTACAO);
-      // o token vai no contato para a automação montar o link
-      payload.cf_raio_x_token = cifrar(email);
+      tokenNovo = cifrar(email);
+      // guardado no contato também, para o caso de precisarmos montar um link depois
+      payload.cf_raio_x_token = tokenNovo;
     }
 
     const r = await fetch(RD_URL, {
@@ -176,7 +177,15 @@ export default async function handler(req, res) {
       return res.status(502).json({ erro: 'rd_falhou', status: r.status });
     }
 
-    return res.status(200).json({ ok: true, origem, identificador: payload.identificador });
+    // o token volta para o navegador guardar: é assim que a pessoa segue
+    // identificada ao entrar no material logo depois do cadastro, sem precisar
+    // de link no e-mail nem de digitar o e-mail outra vez
+    return res.status(200).json({
+      ok: true,
+      origem,
+      identificador: payload.identificador,
+      ...(tokenNovo ? { token: tokenNovo } : {}),
+    });
   } catch (e) {
     console.error('api/lead:', e);
     return res.status(500).json({ erro: 'falha interna' });
