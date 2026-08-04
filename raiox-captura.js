@@ -162,16 +162,31 @@
 
   var OPCOES_IE = ['Importa', 'Exporta', 'Ambos', 'Nenhum'];
 
+  /**
+   * Âncora no campo de e-mail, não no botão.
+   *
+   * As duas páginas têm mais de um botão com o mesmo texto: na LP existe um
+   * "Acessar material" no topo, e no material existe um "Solicitar diagnóstico"
+   * que é o link de WhatsApp do diagnóstico. Procurar pelo texto do botão pega
+   * o errado. O campo de e-mail é único, então subimos a partir dele até achar
+   * o container que tem os campos e exatamente um botão de envio.
+   */
   function acharFormulario() {
-    var botoes = document.querySelectorAll('button');
-    for (var i = 0; i < botoes.length; i++) {
-      if (!CONFIG.textoBotao.test(texto(botoes[i]))) continue;
-      if (botoes[i].closest('a')) continue; // o botão de WhatsApp do diagnóstico é um link
-      var caixa = botoes[i].parentElement;
-      for (var k = 0; k < 4 && caixa; k++, caixa = caixa.parentElement) {
-        if (caixa.querySelectorAll('input[type=text], input:not([type]), input[type=email]').length >= 3) {
-          return { botao: botoes[i], caixa: caixa };
-        }
+    var email = null;
+    var ins = document.querySelectorAll('input');
+    for (var i = 0; i < ins.length; i++) {
+      if (ins[i].type === 'range') continue;
+      if (CONFIG.campos.email.test(ins[i].placeholder || '')) { email = ins[i]; break; }
+    }
+    if (!email) return null;
+
+    var caixa = email.parentElement;
+    for (var k = 0; k < 6 && caixa; k++, caixa = caixa.parentElement) {
+      var candidatos = [].slice.call(caixa.querySelectorAll('button')).filter(function (b) {
+        return CONFIG.textoBotao.test(texto(b)) && !b.closest('a');
+      });
+      if (candidatos.length === 1 && caixa.querySelectorAll('input').length >= 3) {
+        return { botao: candidatos[0], caixa: caixa };
       }
     }
     return null;
