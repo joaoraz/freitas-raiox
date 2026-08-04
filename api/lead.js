@@ -28,8 +28,13 @@ const TAG_SEGMENTACAO = 'raio-x-lead';
 
 const IDENTIFICADOR = {
   lp: 'raio-x-lp',
+  diagnostico: 'raio-x-diagnostico',
   material: 'raio-x-fale-com-especialista',
 };
+
+// 'diagnostico' é enriquecimento silencioso: a pessoa terminou as 8 perguntas e
+// já está identificada pelo token, então salvamos as respostas sem pedir nada.
+// Só 'material' representa intenção comercial e serve de gatilho para o negócio.
 
 // mapeia o que a página manda para as opções exatas cadastradas no RD
 const IMPORTA_EXPORTA = {
@@ -80,25 +85,33 @@ export default async function handler(req, res) {
 
   try {
     const b = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const origem = b.origem === 'lp' ? 'lp' : 'material';
+    const origem = IDENTIFICADOR[b.origem] ? b.origem : 'material';
 
     // o token manda mais que o campo digitado: é a identidade de quem clicou no e-mail
     const emailDoToken = b.token ? decifrar(b.token) : null;
     const email = ehEmail(emailDoToken) ? emailDoToken : String(b.email || '').trim();
 
     if (!ehEmail(email)) return res.status(400).json({ erro: 'email invalido' });
-    if (!String(b.nome || '').trim()) return res.status(400).json({ erro: 'nome obrigatorio' });
+
+    // o diagnóstico não pede nada na tela, então não exige nome
+    if (origem !== 'diagnostico' && !String(b.nome || '').trim()) {
+      return res.status(400).json({ erro: 'nome obrigatorio' });
+    }
 
     const payload = {
       token_rdstation: TOKEN_RD,
       identificador: IDENTIFICADOR[origem],
       email,
-      nome: String(b.nome).trim(),
-      empresa: String(b.empresa || '').trim(),
-      telefone: String(b.telefone || '').trim(),
-      cf_seu_cargo: String(b.cargo || '').trim(),
       tags: ['raio-x-comex-2025'],
     };
+
+    // no diagnóstico só o que foi respondido; nos outros, os dados do formulário
+    if (origem !== 'diagnostico') {
+      payload.nome = String(b.nome).trim();
+      payload.empresa = String(b.empresa || '').trim();
+      payload.telefone = String(b.telefone || '').trim();
+      payload.cf_seu_cargo = String(b.cargo || '').trim();
+    }
 
     if (b.importa_exporta) {
       const v = IMPORTA_EXPORTA[b.importa_exporta] || IMPORTA_EXPORTA[String(b.importa_exporta).toLowerCase()];

@@ -76,8 +76,51 @@
     var idx = botoes.indexOf(btn);
     if (idx < 0) return;
     respostas[CHAVES[Math.floor(idx / 3)]] = texto(btn);
+    guardaRespostas();
     if (Object.keys(respostas).length === 8) dl('raiox_diagnostico_concluido');
   }, true);
+
+  // Guarda as respostas no navegador. Serve para quem chegou sem token: as
+  // respostas seguem junto quando (e se) a pessoa preencher o formulário.
+  var CHAVE_DIAG = 'raiox_diag';
+  function guardaRespostas() {
+    try { localStorage.setItem(CHAVE_DIAG, JSON.stringify(respostas)); } catch (e) {}
+  }
+  (function recupera() {
+    try {
+      var s = JSON.parse(localStorage.getItem(CHAVE_DIAG) || '{}');
+      for (var k in s) if (CHAVES.indexOf(k) >= 0) respostas[k] = s[k];
+    } catch (e) {}
+  })();
+
+  /**
+   * Quando a pessoa abre o resultado e já está identificada pelo token, as 8
+   * respostas e o score vão pro RD na hora, sem pedir nada. Isso enriquece o
+   * contato; quem vira negócio é só o formulário de "Fale com um especialista".
+   */
+  var diagnosticoEnviado = false;
+  function salvarDiagnostico() {
+    if (diagnosticoEnviado || !token()) return;
+    if (Object.keys(respostas).length < 8) return;
+    var res = lerResultado();
+    if (res.score === null) return; // ainda não abriu o resultado
+
+    diagnosticoEnviado = true;
+    var diag = JSON.parse(JSON.stringify(respostas));
+    diag.score = res.score;
+    if (res.faixa) diag.faixa = res.faixa;
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ origem: 'diagnostico', token: token(), diagnostico: diag, utm: utms(), pagina: location.href })
+    })
+      .then(function (r) { if (r.ok) dl('raiox_diagnostico_salvo', { raiox_score: res.score }); })
+      .catch(function () { diagnosticoEnviado = false; });
+  }
+
+  // o resultado aparece depois de um clique, então checamos logo após qualquer um
+  document.addEventListener('click', function () { setTimeout(salvarDiagnostico, 400); }, true);
 
   /**
    * O cartão de resultado mostra o número, a linha "de 100" e a faixa abaixo.
