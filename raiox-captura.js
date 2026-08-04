@@ -41,14 +41,26 @@
     window.dataLayer.push(d);
   }
 
+  /**
+   * A origem tem que sobreviver ao caminho todo. Depois do cadastro a pessoa é
+   * levada da LP para o material, e aí os UTMs já não estão mais na URL. Sem
+   * guardar, o diagnóstico e o pedido de contato chegariam no RD como
+   * "Desconhecido", e só a primeira conversão ficaria atribuída à campanha.
+   */
+  var CHAVE_UTM = 'raiox_utm';
   function utms() {
     var p = new URLSearchParams(location.search), o = {};
     ['source', 'medium', 'campaign', 'content', 'term'].forEach(function (k) {
       var v = p.get('utm_' + k);
       if (v) o[k] = v;
     });
-    return o;
+    if (Object.keys(o).length) {
+      try { localStorage.setItem(CHAVE_UTM, JSON.stringify(o)); } catch (e) {}
+      return o;
+    }
+    try { return JSON.parse(localStorage.getItem(CHAVE_UTM) || '{}'); } catch (e) { return {}; }
   }
+  utms(); // grava logo na entrada, antes de qualquer navegação
 
   function texto(el) { return (el && el.innerText ? el.innerText : '').trim(); }
 
