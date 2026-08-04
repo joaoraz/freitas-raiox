@@ -135,7 +135,34 @@ curl -s https://joaoraz.github.io/freitas-raiox/lp.html | grep 'coisa que mudou'
 - **Coordenação:** Jéssica Aguiar / Isabela / Agnes Buttei
 - **Dev:** João Sartor (Raz Consulting) + Marco Monteiro (Freitas)
 
-## Contatos rápidos
+## Sincronização (leve, dois canais)
 
-- João: joao@razconsulting.com.br
-- Marco: (definir canal de sincronização — WhatsApp ou Slack)
+Sem burocracia — só o mínimo pra não sobrepor versão.
+
+### Síncrono — WhatsApp direto (João ↔ Marco)
+
+Pra quando um dos dois vai começar a editar AGORA. Duas mensagens só:
+
+- **Início:** "vou mexer em `lp.html` — [o que] — [previsão]"
+- **Fim:** "pushei, tá no ar" (colar link se ajudar)
+
+Regra simples: se o outro não confirmou fim, **não começa** a editar o mesmo arquivo. Se for arquivo diferente (você em `index.html`, eu em `lp.html`), vai em paralelo sem problema.
+
+### Assíncrono — GitHub Watch
+
+Todo mundo com Watch → "All Activity" no repo. Cada push chega por e-mail em ~30s. Assim:
+
+- Se eu commitar às 15:03, você vê às 15:04.
+- Se subir bug, qualquer um dos dois abre issue no repo — `New issue` na aba Issues.
+- Pendências que não são "faça agora" viram issue (com label opcional: `pendente`, `bug`, `melhoria`).
+
+Ativar Watch: https://github.com/joaoraz/freitas-raiox → botão `Watch` → `All Activity`.
+
+### Fluxo em uma linha
+
+`git pull --rebase` → aviso no WhatsApp → edita → testa local → commit + push → aviso "pushei" no WhatsApp.
+
+## Contatos
+
+- **João Sartor** (Raz) — joao@razconsulting.com.br — WhatsApp: (confirmar)
+- **Marco Monteiro** (Freitas) — (email + WhatsApp a confirmar)
