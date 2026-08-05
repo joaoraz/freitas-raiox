@@ -174,6 +174,10 @@
 
   var OPCOES_IE = ['Importa', 'Exporta', 'Ambos', 'Nenhum'];
 
+  // mesmas opções cadastradas no campo cf_seu_cargo do RD, para o dado chegar padronizado
+  var OPCOES_CARGO = ['Estagiário', 'Assistente/Auxiliar', 'Analista', 'Coordenador/Supervisor',
+    'Gerente', 'Diretor/Proprietário', 'Outros'];
+
   /**
    * Âncora no campo de e-mail, não no botão.
    *
@@ -247,6 +251,62 @@
     return wrap;
   }
 
+  /** Monta um select com o visual do campo ao lado e esconde o input original. */
+  function trocarPorLista(campo, id, rotulo, opcoes) {
+    if (!campo || campo.getAttribute('data-raiox-lista')) return document.getElementById(id);
+    campo.setAttribute('data-raiox-lista', '1');
+
+    var sel = document.createElement('select');
+    sel.id = id;
+    copiaEstilo(campo, sel);
+    sel.style.appearance = 'none';
+    sel.style.cursor = 'pointer';
+    sel.style.marginBottom = getComputedStyle(campo).marginBottom;
+
+    var vazio = document.createElement('option');
+    vazio.value = ''; vazio.textContent = rotulo; vazio.disabled = true; vazio.selected = true;
+    sel.appendChild(vazio);
+    opcoes.forEach(function (o) {
+      var op = document.createElement('option');
+      op.value = o; op.textContent = o;
+      sel.appendChild(op);
+    });
+
+    campo.style.display = 'none';
+    campo.parentNode.insertBefore(sel, campo);
+    return sel;
+  }
+
+  /**
+   * Na LP, quem já tem token não precisa se cadastrar de novo. Em vez do
+   * formulário, mostra o acesso direto ao material, com escape para quem
+   * quiser cadastrar outro e-mail.
+   */
+  function mostrarAcessoLiberado(caixa, botao) {
+    if (caixa.querySelector('[data-raiox="ja-tem-acesso"]')) return;
+
+    [].slice.call(caixa.querySelectorAll('input, select')).forEach(function (e) {
+      if (e.type !== 'range') e.style.display = 'none';
+    });
+
+    var bloco = document.createElement('div');
+    bloco.setAttribute('data-raiox', 'ja-tem-acesso');
+    bloco.style.cssText = 'font-size:14px;color:#3a3a6a;line-height:1.6;margin-bottom:14px';
+    bloco.innerHTML = '<strong>Você já tem acesso.</strong><br>' +
+      'Seu cadastro está salvo neste navegador, é só continuar. ' +
+      '<a href="#" data-raiox="outro-email" style="color:#ce0f69;text-decoration:underline">Cadastrar outro e-mail</a>';
+    botao.parentNode.insertBefore(bloco, botao);
+
+    // o rótulo do botão já é "Acessar material", que serve. Não mexemos nele
+    // porque o React reescreve o conteúdo a cada render.
+
+    bloco.querySelector('[data-raiox="outro-email"]').addEventListener('click', function (ev) {
+      ev.preventDefault();
+      try { localStorage.removeItem(CHAVE_TOKEN); } catch (e) {}
+      location.reload();
+    });
+  }
+
   function esconderEmail(campoEmail) {
     if (!campoEmail || campoEmail.getAttribute('data-raiox-oculto')) return;
     campoEmail.setAttribute('data-raiox-oculto', '1');
@@ -277,12 +337,28 @@
     var campos = {};
     for (var nome in CONFIG.campos) campos[nome] = acharCampo(f.caixa, CONFIG.campos[nome]);
 
+    // quem já se cadastrou não preenche a LP de novo
+    if (PAGINA === 'lp' && token()) {
+      mostrarAcessoLiberado(f.caixa, f.botao);
+      f.botao.addEventListener('click', function (ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        location.href = '/';
+      }, true);
+      return;
+    }
+
     var selIE = f.caixa.querySelector('select');
     if (CONFIG.pedeImportaExporta && !selIE && !f.caixa.querySelector('[data-raiox="importa-exporta"]')) {
       var bloco = montarSelect(campos.email || campos.nome);
       f.botao.parentNode.insertBefore(bloco, f.botao);
       selIE = bloco.querySelector('select');
     }
+
+    // cargo vira lista fechada, com as opções do cf_seu_cargo
+    var selCargo = trocarPorLista(campos.cargo, 'raiox-cargo', 'Seu cargo *', OPCOES_CARGO);
+
+    // telefone passa a ser obrigatório
+    if (campos.telefone) campos.telefone.placeholder = 'Telefone *';
 
     if (token() && campos.email) esconderEmail(campos.email);
 
@@ -298,6 +374,10 @@
       if (!temToken && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dados.email || '')) {
         return avisar(f.botao, 'Confira o e-mail.');
       }
+      if (selCargo && !selCargo.value) return avisar(f.botao, 'Selecione o seu cargo.');
+      if (campos.telefone && (dados.telefone || '').replace(/\D/g, '').length < 10) {
+        return avisar(f.botao, 'Informe um telefone com DDD.');
+      }
       if (selIE && !selIE.value) return avisar(f.botao, 'Selecione se a empresa importa ou exporta.');
 
       var payload = {
@@ -305,7 +385,7 @@
         nome: dados.nome,
         email: dados.email || '',
         empresa: dados.empresa,
-        cargo: dados.cargo || '',
+        cargo: (selCargo && selCargo.value) || dados.cargo || '',
         telefone: dados.telefone || '',
         token: token(),
         pagina: location.href,
