@@ -349,20 +349,34 @@
    * campos roda a cada passada, e não só quando o botão é ligado. Antes, se o
    * botão surgisse primeiro, o cargo nunca virava lista.
    */
+  /**
+   * Identifica o select pelo conteúdo, não pela posição. Depois que o cargo
+   * virou lista dentro do bundle, os dois selects convivem no mesmo formulário,
+   * e pegar "o primeiro" fazia o cargo ser lido como importa/exporta.
+   */
+  function acharSelect(caixa, regexOpcao) {
+    var sels = caixa.querySelectorAll('select');
+    for (var i = 0; i < sels.length; i++) {
+      var textos = [].slice.call(sels[i].options).map(function (o) { return o.textContent || ''; }).join(' | ');
+      if (regexOpcao.test(textos)) return sels[i];
+    }
+    return null;
+  }
+  var RE_IE = /Importa|Importo|Exporta|Exporto|Ambos/i;
+  var RE_CARGO = /Seu cargo|Estagi|Coordenador|Diretor/i;
+
   function melhorarCampos(caixa, campos) {
-    var selIE = caixa.querySelector('select');
+    var selIE = acharSelect(caixa, RE_IE);
     if (CONFIG.pedeImportaExporta && !selIE && !caixa.querySelector('[data-raiox="importa-exporta"]')) {
       var bloco = montarSelect(campos.email || campos.nome);
       var refBotao = caixa.querySelector('button');
       if (refBotao) refBotao.parentNode.insertBefore(bloco, refBotao);
       selIE = bloco.querySelector('select');
     }
-    // Cargo continua campo de texto. Tentamos trocar por lista fechada, mas o
-    // React remove o select injetado no render seguinte e o campo sumia da tela.
-    // Para virar lista de verdade precisa ser feito no bundle, como o João fez
-    // com o select de importa/exporta na LP.
+    // o cargo agora é lista dentro do próprio bundle, só localizamos
+    var selCargo = acharSelect(caixa, RE_CARGO);
     if (campos.telefone && campos.telefone.placeholder !== 'Telefone *') campos.telefone.placeholder = 'Telefone *';
-    return { selIE: selIE, selCargo: null };
+    return { selIE: selIE, selCargo: selCargo };
   }
 
   function ligar() {
@@ -397,8 +411,8 @@
       // relê tudo na hora do envio: o React pode ter trocado os elementos
       for (var k in CONFIG.campos) campos[k] = acharCampo(f.caixa, CONFIG.campos[k]) || campos[k];
       var atuais = melhorarCampos(f.caixa, campos);
-      var selIE = atuais.selIE || document.getElementById('raiox-importa-exporta');
-      var selCargo = atuais.selCargo || document.getElementById('raiox-cargo');
+      var selIE = atuais.selIE;
+      var selCargo = atuais.selCargo;
 
       var dados = {};
       for (var n in campos) if (campos[n]) dados[n] = (campos[n].value || '').trim();
