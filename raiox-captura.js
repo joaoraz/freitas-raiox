@@ -348,6 +348,13 @@
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (j) {
         dl('raiox_lead', { raiox_identificador: j.identificador || '' });
+
+        // O container do Freitas tem o acionador "Trigger - 1- Lead" escutando o
+        // evento form_submit, e ele dispara as quatro tags de lead: Meta, GA4,
+        // Google Ads e LinkedIn. Empurrando o mesmo evento, o Raio-X entra no
+        // padrão que as outras iscas já usam, sem precisar de tag nova no GTM.
+        window.dataLayer.push({ event: 'form_submit', raiox_pagina: PAGINA, raiox_identificador: j.identificador || '' });
+
         var av = botao.parentNode.querySelector('[data-raiox="aviso"]');
         if (av) av.textContent = '';
 
