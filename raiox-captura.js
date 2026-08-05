@@ -111,15 +111,30 @@
    * contato; quem vira negócio é só o formulário de "Fale com um especialista".
    */
   var diagnosticoEnviado = false;
-  function salvarDiagnostico() {
+  var aguardandoResultado = null;
+
+  /**
+   * Envia assim que as 8 estiverem respondidas. O score só aparece depois que a
+   * pessoa abre o resultado, então damos 8 segundos por ele; se não abrir, as
+   * respostas vão sem score. Antes o envio exigia o resultado aberto, e quem
+   * respondia tudo sem clicar em "Ver diagnóstico" não gravava nada.
+   */
+  function salvarDiagnostico(forcar) {
     if (diagnosticoEnviado || !token()) return;
     if (Object.keys(respostas).length < 8) return;
+
     var res = lerResultado();
-    if (res.score === null) return; // ainda não abriu o resultado
+    if (res.score === null && !forcar) {
+      if (!aguardandoResultado) {
+        aguardandoResultado = setTimeout(function () { salvarDiagnostico(true); }, 8000);
+      }
+      return;
+    }
 
     diagnosticoEnviado = true;
+    if (aguardandoResultado) { clearTimeout(aguardandoResultado); aguardandoResultado = null; }
     var diag = JSON.parse(JSON.stringify(respostas));
-    diag.score = res.score;
+    if (res.score !== null) diag.score = res.score;
     if (res.faixa) diag.faixa = res.faixa;
 
     fetch(ENDPOINT, {
@@ -329,10 +344,30 @@
     });
   }
 
+  /**
+   * Campos e botão nem sempre existem no mesmo render. Por isso a melhoria dos
+   * campos roda a cada passada, e não só quando o botão é ligado. Antes, se o
+   * botão surgisse primeiro, o cargo nunca virava lista.
+   */
+  function melhorarCampos(caixa, campos) {
+    var selIE = caixa.querySelector('select');
+    if (CONFIG.pedeImportaExporta && !selIE && !caixa.querySelector('[data-raiox="importa-exporta"]')) {
+      var bloco = montarSelect(campos.email || campos.nome);
+      var refBotao = caixa.querySelector('button');
+      if (refBotao) refBotao.parentNode.insertBefore(bloco, refBotao);
+      selIE = bloco.querySelector('select');
+    }
+    // Cargo continua campo de texto. Tentamos trocar por lista fechada, mas o
+    // React remove o select injetado no render seguinte e o campo sumia da tela.
+    // Para virar lista de verdade precisa ser feito no bundle, como o João fez
+    // com o select de importa/exporta na LP.
+    if (campos.telefone && campos.telefone.placeholder !== 'Telefone *') campos.telefone.placeholder = 'Telefone *';
+    return { selIE: selIE, selCargo: null };
+  }
+
   function ligar() {
     var f = acharFormulario();
-    if (!f || f.botao.getAttribute('data-raiox-ligado')) return;
-    f.botao.setAttribute('data-raiox-ligado', '1');
+    if (!f) return;
 
     var campos = {};
     for (var nome in CONFIG.campos) campos[nome] = acharCampo(f.caixa, CONFIG.campos[nome]);
@@ -340,6 +375,8 @@
     // quem já se cadastrou não preenche a LP de novo
     if (PAGINA === 'lp' && token()) {
       mostrarAcessoLiberado(f.caixa, f.botao);
+      if (f.botao.getAttribute('data-raiox-ligado')) return;
+      f.botao.setAttribute('data-raiox-ligado', '1');
       f.botao.addEventListener('click', function (ev) {
         ev.preventDefault(); ev.stopPropagation();
         location.href = '/';
@@ -347,24 +384,21 @@
       return;
     }
 
-    var selIE = f.caixa.querySelector('select');
-    if (CONFIG.pedeImportaExporta && !selIE && !f.caixa.querySelector('[data-raiox="importa-exporta"]')) {
-      var bloco = montarSelect(campos.email || campos.nome);
-      f.botao.parentNode.insertBefore(bloco, f.botao);
-      selIE = bloco.querySelector('select');
-    }
-
-    // cargo vira lista fechada, com as opções do cf_seu_cargo
-    var selCargo = trocarPorLista(campos.cargo, 'raiox-cargo', 'Seu cargo *', OPCOES_CARGO);
-
-    // telefone passa a ser obrigatório
-    if (campos.telefone) campos.telefone.placeholder = 'Telefone *';
-
+    melhorarCampos(f.caixa, campos);
     if (token() && campos.email) esconderEmail(campos.email);
+
+    if (f.botao.getAttribute('data-raiox-ligado')) return;
+    f.botao.setAttribute('data-raiox-ligado', '1');
 
     f.botao.addEventListener('click', function (ev) {
       ev.preventDefault();
       ev.stopPropagation();
+
+      // relê tudo na hora do envio: o React pode ter trocado os elementos
+      for (var k in CONFIG.campos) campos[k] = acharCampo(f.caixa, CONFIG.campos[k]) || campos[k];
+      var atuais = melhorarCampos(f.caixa, campos);
+      var selIE = atuais.selIE || document.getElementById('raiox-importa-exporta');
+      var selCargo = atuais.selCargo || document.getElementById('raiox-cargo');
 
       var dados = {};
       for (var n in campos) if (campos[n]) dados[n] = (campos[n].value || '').trim();
@@ -374,7 +408,7 @@
       if (!temToken && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dados.email || '')) {
         return avisar(f.botao, 'Confira o e-mail.');
       }
-      if (selCargo && !selCargo.value) return avisar(f.botao, 'Selecione o seu cargo.');
+      // cargo não bloqueia: se a lista não foi escolhida, vale o texto digitado
       if (campos.telefone && (dados.telefone || '').replace(/\D/g, '').length < 10) {
         return avisar(f.botao, 'Informe um telefone com DDD.');
       }
