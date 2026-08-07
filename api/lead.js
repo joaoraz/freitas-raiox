@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
  * Recebe as conversões das duas páginas do Raio-X e cria/atualiza o contato no
  * RD Station pela API de Conversão 1.3.
  *
- *   LP (/lp.html)     -> identificador raio-x-lp
+ *   LP (/lp)          -> identificador raio-x-lp
  *                        marca a tag de segmentação que dispara a automação de e-mail
  *                        gera o token de identidade e grava em cf_raio_x_token
  *
