@@ -3,8 +3,8 @@
  * Raz · 04/08/2026
  *
  * Um arquivo serve as duas páginas:
- *   /lp.html  cadastro, vai pro RD e marca a tag que dispara o e-mail com o material
- *   /         "Fale com um especialista", vai pro RD e vira negócio
+ *   /lp  cadastro, vai pro RD e marca a tag que dispara o e-mail com o material
+ *   /    "Fale com um especialista", vai pro RD e vira negócio
  *
  * Identidade: o link do e-mail vem com ?t=<token>. Com token, o campo de e-mail
  * some e a pessoa não tem como informar outro endereço, então a conversão cai no
@@ -18,7 +18,9 @@
   'use strict';
 
   var ENDPOINT = '/api/lead';
-  var PAGINA = /lp\.html$/i.test(location.pathname) ? 'lp' : 'material';
+  // aceita /lp e /lp.html: a Vercel serve a URL limpa e redireciona a antiga com 308,
+  // e os anuncios antigos podem chegar de qualquer uma das duas
+  var PAGINA = /\/lp(\.html)?\/?$/i.test(location.pathname) ? 'lp' : 'material';
   var CHAVE_TOKEN = 'raiox_t';
 
   // ------------------------------------------------------------------ token
