@@ -15,14 +15,22 @@
 <script>
 (function () {
   var CHAVE = 'raiox_t';
+  // O token e base64url de iv(12) + authTag(16) + cifra, entao um token de
+  // verdade nunca tem menos de 39 caracteres. Conferir o formato barra o
+  // palpite obvio (?t=qualquercoisa) sem risco de barrar quem e legitimo.
+  var VALIDO = /^[A-Za-z0-9_-]{38,}$/;
   var t = (location.search.match(/[?&]t=([^&]*)/) || [])[1];
   if (t) {
-    try { localStorage.setItem(CHAVE, decodeURIComponent(t)); } catch (e) {}
-    return;
+    try { t = decodeURIComponent(t); } catch (e) {}
+    if (VALIDO.test(t)) {
+      try { localStorage.setItem(CHAVE, t); } catch (e) {}
+      return;
+    }
+    // token torto: ignora e cai na checagem do localStorage abaixo
   }
   var salvo = '';
   try { salvo = localStorage.getItem(CHAVE) || ''; } catch (e) { salvo = ''; }
-  if (salvo) return;
+  if (VALIDO.test(salvo)) return;
   location.replace('/lp' + location.search);
 })();
 </script>
