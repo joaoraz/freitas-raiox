@@ -3,6 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Portao do material: sem cadastro, nao entra.
+     Roda aqui em cima, antes do bundle e antes do GTM, entao quem nao passou
+     pela LP nao chega a ver o conteudo nem conta como pageview.
+     Tres jeitos legitimos de entrar, todos cobertos:
+       1. acabou de se cadastrar na LP  -> token na URL e no localStorage
+       2. voltou depois                 -> token no localStorage
+       3. clicou no link do e-mail      -> ?t=<token> na URL
+     Sem nenhum deles, volta pra /lp levando os UTMs junto. -->
+<script>
+(function () {
+  var CHAVE = 'raiox_t';
+  var t = (location.search.match(/[?&]t=([^&]*)/) || [])[1];
+  if (t) {
+    try { localStorage.setItem(CHAVE, decodeURIComponent(t)); } catch (e) {}
+    return;
+  }
+  var salvo = '';
+  try { salvo = localStorage.getItem(CHAVE) || ''; } catch (e) { salvo = ''; }
+  if (salvo) return;
+  location.replace('/lp' + location.search);
+})();
+</script>
+
 <title>Raio-X do Comex 2025 | Freitas Comex</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700;900&display=swap" rel="stylesheet">
