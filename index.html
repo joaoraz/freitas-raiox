@@ -31,7 +31,19 @@
   var salvo = '';
   try { salvo = localStorage.getItem(CHAVE) || ''; } catch (e) { salvo = ''; }
   if (VALIDO.test(salvo)) return;
-  location.replace('/lp' + location.search);
+  // token salvo invalido faz a LP achar que a pessoa ja tem acesso e esconder
+  // o campo de e-mail, entao limpa antes de mandar de volta
+  if (salvo) { try { localStorage.removeItem(CHAVE); } catch (e) {} }
+  // leva os UTMs, mas NAO leva o ?t= torto: a LP guarda o que vier em ?t= sem
+  // conferir, e um token invalido la faz o botao apontar pra ca de novo, em loop
+  var q = '';
+  if (location.search) {
+    q = location.search.slice(1).split('&').filter(function (kv) {
+      return kv && kv.slice(0, 2) !== 't=';
+    }).join('&');
+    q = q ? '?' + q : '';
+  }
+  location.replace('/lp' + q);
 })();
 </script>
 
