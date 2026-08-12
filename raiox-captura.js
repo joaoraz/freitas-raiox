@@ -56,6 +56,15 @@
       var v = p.get('utm_' + k);
       if (v) o[k] = v;
     });
+    // Sem utm_*, infere pelo click ID. gclid/gbraid/wbraid só existem em clique
+    // de Google Ads (auto-tagging), então google/cpc é fato, não chute; foi o furo
+    // do PMax de 08/2026, que subiu com a URL final limpa e 274 sessões viraram
+    // "Desconhecido" no RD. fbclid vem de qualquer clique em app da Meta (pago ou
+    // orgânico), então marca só a fonte, sem afirmar mídia paga.
+    if (!Object.keys(o).length) {
+      if (p.get('gclid') || p.get('gbraid') || p.get('wbraid')) { o.source = 'google'; o.medium = 'cpc'; }
+      else if (p.get('fbclid')) { o.source = 'facebook'; o.medium = 'social'; }
+    }
     if (Object.keys(o).length) {
       try { localStorage.setItem(CHAVE_UTM, JSON.stringify(o)); } catch (e) {}
       return o;
