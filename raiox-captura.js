@@ -188,7 +188,7 @@
   var CONFIG = {
     lp: {
       textoBotao: /Acessar material/i,
-      campos: { nome: /Como podemos te chamar/i, email: /E-mail corporativo/i, empresa: /Empresa que voc/i, cargo: /Cargo/i },
+      campos: { nome: /Como podemos te chamar/i, email: /E-mail corporativo/i, empresa: /Empresa que voc/i, cargo: /Cargo/i, telefone: /Telefone/i },
       pedeImportaExporta: false
     },
     material: {
@@ -386,7 +386,27 @@
     }
     // o cargo agora é lista dentro do próprio bundle, só localizamos
     var selCargo = acharSelect(caixa, RE_CARGO);
-    if (campos.telefone && campos.telefone.placeholder !== 'Telefone *') campos.telefone.placeholder = 'Telefone *';
+
+    // Telefone na LP: o bundle não tem o campo, então injetamos antes do cargo
+    // (obrigatório desde 13/08, pedido do cliente). No material ele já vem do bundle.
+    if (PAGINA === 'lp' && !caixa.querySelector('[data-raiox="telefone"]')) {
+      var wrapTel = document.createElement('div');
+      wrapTel.setAttribute('data-raiox', 'telefone');
+      wrapTel.style.marginBottom = '8px';
+      var tel = document.createElement('input');
+      tel.type = 'tel';
+      tel.id = 'raiox-telefone';
+      tel.placeholder = 'Telefone (com DDD) *';
+      tel.autocomplete = 'tel';
+      tel.setAttribute('inputmode', 'tel');
+      copiaEstilo(campos.email || campos.nome, tel);
+      wrapTel.appendChild(tel);
+      var refTel = selCargo || caixa.querySelector('button');
+      if (refTel) refTel.parentNode.insertBefore(wrapTel, refTel);
+    }
+
+    // o input do material vem do bundle sem o asterisco; o injetado da LP já vem certo
+    if (campos.telefone && campos.telefone.placeholder === 'Telefone') campos.telefone.placeholder = 'Telefone *';
     return { selIE: selIE, selCargo: selCargo };
   }
 
@@ -433,9 +453,17 @@
       if (!temToken && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dados.email || '')) {
         return avisar(f.botao, 'Confira o e-mail.');
       }
-      // cargo não bloqueia: se a lista não foi escolhida, vale o texto digitado
-      if (campos.telefone && (dados.telefone || '').replace(/\D/g, '').length < 10) {
+      // na LP todos os campos são obrigatórios (pedido do cliente, 13/08): telefone
+      // injetado com DDD e cargo escolhido na lista. No material o cargo segue não
+      // bloqueando (vale o texto digitado) e o telefone já era obrigatório.
+      if (PAGINA === 'lp' && (!campos.telefone || (dados.telefone || '').replace(/\D/g, '').length < 10)) {
         return avisar(f.botao, 'Informe um telefone com DDD.');
+      }
+      if (PAGINA !== 'lp' && campos.telefone && (dados.telefone || '').replace(/\D/g, '').length < 10) {
+        return avisar(f.botao, 'Informe um telefone com DDD.');
+      }
+      if (PAGINA === 'lp' && selCargo && !selCargo.value && !(dados.cargo || '').trim()) {
+        return avisar(f.botao, 'Selecione o seu cargo.');
       }
       if (selIE && !selIE.value) return avisar(f.botao, 'Selecione se a empresa importa ou exporta.');
 
